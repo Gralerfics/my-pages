@@ -11,7 +11,7 @@ Repo: [Gralerfics/FmcPGA](https://github.com/Gralerfics/FmcPGA)
 使用硬件描述语言 VHDL 编写，使用光线步进和流水线设计，运行在 FPGA 上的丐版 Minecraft。支持 PS2 手柄控制移动、放置和破坏方块。
 
 <div align="center">
-    <img src="imgsmcPGA.jpg" width="70%" />
+    <img src="imgs/FmcPGA.jpg" width="70%" />
 </div>
 
 
@@ -26,7 +26,7 @@ Repo: [Gralerfics/ZeptoWatch](https://github.com/Gralerfics/ZeptoWatch)
 固件设计支持 FreeRTOS、USB2.0、FAT 文件系统、LVGL 图形界面；同时内嵌 Python 解释器，可执行用户存储的脚本，作为应用程序，并将外设接口和 UI 接口封装为包供开发者调用。
 
 <div align="center">
-    <img src="imgseptoWatch.png" width="70%" />
+    <img src="imgs/ZeptoWatch.png" width="70%" />
 </div>
 
 
@@ -39,7 +39,7 @@ Repo: [Gralerfics/OthellooO](https://github.com/Gralerfics/OthellooO)
 图形框架使用 LWJGL，在片段着色器中实现光线追踪、PBR 材质、Hdr 背景，以及八叉树、重要性采样等优化。
 
 <div align="center">
-    <img src="imgsthellooO.png" width="70%" />
+    <img src="imgs/OthellooO.png" width="70%" />
 </div>
 
 
@@ -52,7 +52,7 @@ Repo: [Gralerfics/pf-drive](https://github.com/Gralerfics/pf-drive)
 仍在进行中。
 
 <div align="center">
-    <img src="imgsfdrive.png" width="70%" />
+    <img src="imgs/pfdrive.png" width="70%" />
 </div>
 
 
@@ -65,7 +65,7 @@ Repos:
 该课程项目要求完成在障碍场景下的多点导航，以及一个贴有二维码物块的抓取与搬运。
 
 <div align="center">
-    <img src="imgsos2.png" width="60%" />
+    <img src="imgs/ros2.png" width="60%" />
 </div>
 
 [Gralerfics/SUSTech-EE346-Mobile-Robot-Navigation-and-Control-Laboratory](https://github.com/Gralerfics/SUSTech-EE346-Mobile-Robot-Navigation-and-Control-Laboratory)
@@ -73,7 +73,7 @@ Repos:
 该课程项目要求完成在障碍场景下的多点导航，并在途中停靠多处位置不确定的标记物。
 
 <div align="center">
-    <img src="imgsos1.png" width="60%" />
+    <img src="imgs/ros1.png" width="60%" />
 </div>
 
 [Gralerfics/SUSTech-EE368-Robotic-Motion-and-Control-Project](https://github.com/Gralerfics/SUSTech-EE368-Robotic-Motion-and-Control-Project)
@@ -81,7 +81,7 @@ Repos:
 该项目通过识别白板上的二维码，可以跟随慢速移动的白板，在其上绘制图案。
 
 <div align="center">
-    <img src="imgsobotics.jpg" width="40%" />
+    <img src="imgs/robotics.jpg" width="40%" />
 </div>
 
 
@@ -94,7 +94,7 @@ Repo: [Gralerfics/http_file_manager](https://github.com/Gralerfics/http_file_man
 前者实现基本的 HTTP 1.1 协议，支持 GET、POST、HEAD 请求，以及一个简易的加密通信框架；后者包含完整前后端应用，支持用户登录、文件上传、下载、删除、重命名、新建文件夹、查看文件内容等功能。
 
 <div align="center">
-    <img src="imgsttp_file_manager.png" width="70%" />
+    <img src="imgs/http_file_manager.png" width="70%" />
 </div>
 
 
@@ -107,7 +107,7 @@ Repo: [Gralerfics/RTL-SDR-Project](https://github.com/Gralerfics/RTL-SDR-Project
 仓库内包括硬件设计源文件、工具软件，以及包含设计方案、原理说明、驱动程序分析等内容的教程文档。
 
 <div align="center">
-    <img src="imgstlsdr.jpg" width="50%" />
+    <img src="imgs/rtlsdr.jpg" width="50%" />
 </div>
 
 
@@ -170,7 +170,7 @@ Project: [Gralerfics/SUSTech-EE326-Digital-Image-Processing-Project](https://git
 矩形区域分割、几何校正与图像增强。
 
 <div align="center">
-    <img src="imgsip.png" width="70%" />
+    <img src="imgs/dip.png" width="70%" />
 </div>
 
 
