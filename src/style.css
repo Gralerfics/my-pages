@@ -285,6 +285,26 @@ img {
     }
 }
 
+.projects-fade-enter-active {
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.projects-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.projects-fade-leave-active {
+  transition: none;
+}
+
+.projects-fade-leave-to {
+  opacity: 1;
+  transform: none;
+}
+
 .panel {
   border-top: 1px solid var(--border);
   border-radius: 0;

@@ -81,33 +81,35 @@ const filteredProjects = computed(() => {
           </label>
         </div>
 
-        <div class="project-listing">
-          <button
-            v-for="project in filteredProjects"
-            :key="project.slug"
-            type="button"
-            class="project-card"
-            @click="emit('open-project', project.slug)"
-          >
-            <div class="project-card__content">
-              <img
-                v-if="project.cover"
-                class="project-card__thumb"
-                :src="project.cover"
-                :alt="project.title"
-              />
-              <div v-else class="project-card__thumb project-card__thumb--placeholder" aria-hidden="true">
-                <span>{{ project.title }}</span>
+        <Transition name="projects-fade" mode="out-in">
+          <div :key="`${activeTab}:${searchQuery.trim().toLowerCase()}`" class="project-listing">
+            <button
+              v-for="project in filteredProjects"
+              :key="project.slug"
+              type="button"
+              class="project-card"
+              @click="emit('open-project', project.slug)"
+            >
+              <div class="project-card__content">
+                <img
+                  v-if="project.cover"
+                  class="project-card__thumb"
+                  :src="project.cover"
+                  :alt="project.title"
+                />
+                <div v-else class="project-card__thumb project-card__thumb--placeholder" aria-hidden="true">
+                  <span>{{ project.title }}</span>
+                </div>
+                <div class="project-card__head">
+                  <p class="project-card__meta">{{ project.groups.join(' / ') }} / {{ project.period }}</p>
+                  <h3>{{ project.title }}</h3>
+                  <p class="project-card__subtitle">{{ project.subtitle }}</p>
+                </div>
+                <p class="project-card__summary">{{ project.summary }}</p>
               </div>
-              <div class="project-card__head">
-                <p class="project-card__meta">{{ project.groups.join(' / ') }} / {{ project.period }}</p>
-                <h3>{{ project.title }}</h3>
-                <p class="project-card__subtitle">{{ project.subtitle }}</p>
-              </div>
-              <p class="project-card__summary">{{ project.summary }}</p>
-            </div>
-          </button>
-        </div>
+            </button>
+          </div>
+        </Transition>
       </div>
     </section>
   </div>
