@@ -4,55 +4,95 @@ defineProps({
         type: Object,
         required: true,
     },
-    sections: {
-        type: Array,
+    resumeContent: {
+        type: Object,
         required: true,
     },
 })
+
+const emit = defineEmits(['open-projects'])
 </script>
 
 <template>
     <div class="page page-resume">
         <section class="resume-hero">
-            <div>
-                <p class="eyebrow">Resume</p>
-                <h1>{{ profile.name }}</h1>
+            <div class="resume-hero__body">
+                <p class="eyebrow">Résumé</p>
+                <h1>{{ profile.realName }}</h1>
                 <p class="resume-hero__title">{{ profile.title }}</p>
+                <p class="resume-hero__contact">{{ profile.email }}</p>
             </div>
-            <div class="resume-hero__facts">
+        </section>
+
+        <section class="editorial-section">
+            <div class="section-label">
+                <p class="eyebrow">Profile</p>
+                <h2>Personal statement</h2>
+            </div>
+            <div class="section-body resume-prose">
+                <p v-for="paragraph in resumeContent.profileStatement" :key="paragraph">{{ paragraph }}</p>
+            </div>
+        </section>
+
+        <section class="editorial-section">
+            <div class="section-label">
+                <p class="eyebrow">Education</p>
+                <h2>Academic timeline</h2>
+            </div>
+            <div class="section-body">
+                <ol class="timeline list-clean">
+                    <li v-for="item in resumeContent.education" :key="`${item.time}-${item.title}`" class="timeline__item">
+                        <p class="timeline__period">{{ item.time }}</p>
+                        <div class="timeline__content">
+                            <h3>{{ item.title }}</h3>
+                            <p class="resume-entry__org">{{ item.organization }}</p>
+                            <p>{{ item.detail }}</p>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="editorial-section">
+            <div class="section-label">
+                <p class="eyebrow">Projects</p>
+                <h2>Project experience</h2>
+            </div>
+            <div class="section-body resume-prose">
+                <p>
+                    Selected projects are documented on the Projects page, where each entry includes
+                    overview information and a more detailed page.
+                </p>
                 <div>
-                    <span>Location</span>
-                    <strong>{{ profile.location }}</strong>
-                </div>
-                <div>
-                    <span>Focus</span>
-                    <strong>Systems, robotics, embedded</strong>
-                </div>
-                <div>
-                    <span>Format</span>
-                    <strong>Academic-style static portfolio</strong>
+                    <button type="button" class="button" @click="emit('open-projects')">
+                        Open Projects Page
+                    </button>
                 </div>
             </div>
         </section>
 
-        <section class="resume-grid">
-            <article v-for="section in sections" :key="section.title" class="panel resume-card">
-                <div class="section-heading">
-                    <p class="eyebrow">Section</p>
-                    <h2>{{ section.title }}</h2>
-                </div>
+        <section class="editorial-section">
+            <div class="section-label">
+                <p class="eyebrow">Skills</p>
+                <h2>Technical skills</h2>
+            </div>
+            <div class="section-body section-body--boxed">
                 <ul class="list-clean bullet-list">
-                    <li v-for="item in section.items" :key="item">{{ item }}</li>
+                    <li v-for="skill in resumeContent.skills" :key="skill">{{ skill }}</li>
                 </ul>
-            </article>
+            </div>
         </section>
 
-        <section class="panel resume-note">
-            <p class="eyebrow">Note</p>
-            <p>
-                This page is a concise profile summary tailored for a portfolio site rather than a full
-                document-style CV. It can be extended later into a dedicated CV page or multilingual version.
-            </p>
+        <section class="editorial-section">
+            <div class="section-label">
+                <p class="eyebrow">Awards</p>
+                <h2>Honors and awards</h2>
+            </div>
+            <div class="section-body section-body--boxed">
+                <ul class="list-clean bullet-list">
+                    <li v-for="item in resumeContent.honors" :key="item">{{ item }}</li>
+                </ul>
+            </div>
         </section>
     </div>
 </template>

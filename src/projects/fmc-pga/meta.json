@@ -7,5 +7,5 @@
   "repo": "https://github.com/Gralerfics/FmcPGA",
   "intro": "A compact FPGA graphics project built in VHDL, combining display logic, interaction, and hardware timing under strict resource constraints.",
   "tags": ["VHDL", "FPGA", "PS/2", "Pipeline Design"],
-  "priority": 80
+  "priority": 130
 }

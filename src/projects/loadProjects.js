@@ -31,6 +31,7 @@ const projectEntries = Object.entries(metaModules).map(([path, meta]) => {
       ?? coverModules[`./${slug}/cover.jpg`]
       ?? coverModules[`./${slug}/cover.jpeg`]
       ?? coverModules[`./${slug}/cover.webp`]
+      ?? coverModules[`./${slug}/cover.gif`]
       ?? coverModules[`./${slug}/cover.svg`]
       ?? null,
     pageComponent: pageModules[`./${slug}/Page.vue`],

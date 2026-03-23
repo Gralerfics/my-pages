@@ -1,0 +1,10 @@
+{
+  "title": "Robotics Navigation and Control Coursework",
+  "subtitle": "Integrated robotics labs in navigation, manipulation, and control",
+  "time": "2022.09 - 2023.12",
+  "groups": ["Robotics"],
+  "status": "Completed",
+  "intro": "A grouped project entry covering several robotics laboratory tasks in obstacle navigation, waypoint stopping, QR-based object interaction, and whiteboard-following control.",
+  "tags": ["Robotics", "Navigation", "Control", "ROS"],
+  "priority": 70
+}

@@ -6,7 +6,7 @@ import ProjectsView from './components/ProjectsView.vue'
 import ResumeView from './components/ResumeView.vue'
 import SiteNavigation from './components/SiteNavigation.vue'
 import { useHashRoute } from './composables/useHashRoute'
-import { profile, researchFocus, resumeSections } from './content/profileContent'
+import { profile, researchFocus, resumeContent } from './content/profileContent'
 import { projectConfig } from './content/projectConfig'
 import { projectTabs, projects } from './projects/loadProjects'
 
@@ -18,10 +18,10 @@ const currentProject = computed(() => {
 
 watchEffect(() => {
     const titles = {
-        home: `${profile.name} | Home`,
-        projects: `${profile.name} | Projects`,
-        resume: `${profile.name} | Resume`,
-        project: `${currentProject.value.title} | ${profile.name}`,
+        home: `${profile.handle} | Home`,
+        projects: `${profile.handle} | Projects`,
+        resume: `${profile.handle} | Résumé`,
+        project: `${currentProject.value.title} | ${profile.handle}`,
     }
 
     document.title = titles[routeName.value]
@@ -35,6 +35,8 @@ watchEffect(() => {
         <SiteNavigation
             :active-view="routeName"
             :projects-label="routeName === 'project' ? currentProject.title : 'Projects'"
+            :handle="profile.handle"
+            :real-name="profile.realName"
             :github-href="profile.github"
             @navigate="navigate"
         />
@@ -68,7 +70,8 @@ watchEffect(() => {
             <ResumeView
                 v-else
                 :profile="profile"
-                :sections="resumeSections"
+                :resume-content="resumeContent"
+                @open-projects="navigate('projects')"
             />
         </main>
     </div>

@@ -705,14 +705,14 @@ h3 {
 .focus-list li,
 .bullet-list li {
     position: relative;
-    padding-left: 20px;
+    padding-left: 24px;
 }
 
 .focus-list li::before,
 .bullet-list li::before {
     content: '';
     position: absolute;
-    top: 0.72em;
+    top: 0.59em;
     left: 0;
     width: 8px;
     height: 8px;
@@ -1003,6 +1003,22 @@ h3 {
 .resume-hero {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
     align-items: end;
+}
+
+.resume-hero__body {
+  display: grid;
+  gap: 14px;
+}
+
+.resume-hero__contact,
+.resume-entry__org {
+  color: var(--text-muted);
+}
+
+.resume-prose {
+  display: grid;
+  gap: 16px;
+  max-width: 54rem;
 }
 
 .resume-hero__facts {

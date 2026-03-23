@@ -7,5 +7,5 @@
   "repo": "https://github.com/Gralerfics/pf-drive",
   "intro": "An Ackermann-platform driving project built on a bio-inspired teach-and-repeat baseline, with emphasis on stable route repetition.",
   "tags": ["Robotics", "Autonomous Driving", "Control", "Perception"],
-  "priority": 100
+  "priority": 120
 }
