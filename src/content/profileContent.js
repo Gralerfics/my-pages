@@ -1,5 +1,5 @@
 export const profile = {
-  name: 'Zhuoyang Wang',
+  name: 'Gralerfics',
   title: 'Robotics / Electronic Engineering',
   location: 'Delft, Netherlands',
   email: 'z.wang-107@student.tudelft.nl / glverfer@outlook.com',

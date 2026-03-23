@@ -8,5 +8,5 @@
   "summary": "A compact FPGA graphics project built in VHDL, combining display logic, interaction, and hardware timing under strict resource constraints.",
   "intro": "A hardware graphics experiment focused on turning rendering, input, and interaction into an actual FPGA implementation.",
   "tags": ["VHDL", "FPGA", "PS/2", "Pipeline Design"],
-  "order": 1
+  "priority": 80
 }

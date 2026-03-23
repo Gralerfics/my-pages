@@ -1,3 +1,5 @@
+import { projectConfig } from '../content/projectConfig'
+
 const metaModules = import.meta.glob('./*/meta.json', {
   eager: true,
   import: 'default',
@@ -36,14 +38,25 @@ const projectEntries = Object.entries(metaModules).map(([path, meta]) => {
 })
 
 export const projects = projectEntries.sort((left, right) => {
-  const leftOrder = left.order ?? Number.MAX_SAFE_INTEGER
-  const rightOrder = right.order ?? Number.MAX_SAFE_INTEGER
+  const leftPriority = left.priority ?? 0
+  const rightPriority = right.priority ?? 0
 
-  if (leftOrder !== rightOrder) {
-    return leftOrder - rightOrder
+  if (leftPriority !== rightPriority) {
+    return rightPriority - leftPriority
   }
 
   return left.title.localeCompare(right.title)
 })
 
-export const projectTabs = Array.from(new Set(projects.flatMap((project) => project.groups)))
+export const projectTabs = Array.from(new Set(projects.flatMap((project) => project.groups))).sort(
+  (left, right) => {
+    const leftPriority = projectConfig.groupPriority[left] ?? 0
+    const rightPriority = projectConfig.groupPriority[right] ?? 0
+
+    if (leftPriority !== rightPriority) {
+      return rightPriority - leftPriority
+    }
+
+    return left.localeCompare(right)
+  },
+)

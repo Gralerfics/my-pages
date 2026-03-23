@@ -7,6 +7,7 @@ import ResumeView from './components/ResumeView.vue'
 import SiteNavigation from './components/SiteNavigation.vue'
 import { useHashRoute } from './composables/useHashRoute'
 import { profile, researchFocus, resumeSections } from './content/profileContent'
+import { projectConfig } from './content/projectConfig'
 import { projectTabs, projects } from './projects/loadProjects'
 
 const { routeName, routeSlug, navigate } = useHashRoute()
@@ -43,6 +44,9 @@ watchEffect(() => {
                 v-if="routeName === 'home'"
                 :profile="profile"
                 :research-focus="researchFocus"
+                :projects="projects"
+                :home-preview-count="projectConfig.homePreviewCount"
+                @open-project="navigate"
                 @open-projects="navigate('projects')"
                 @open-resume="navigate('resume')"
             />

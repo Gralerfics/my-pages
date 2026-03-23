@@ -8,9 +8,17 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  projects: {
+    type: Array,
+    required: true,
+  },
+  homePreviewCount: {
+    type: Number,
+    required: true,
+  },
 })
 
-const emit = defineEmits(['open-projects', 'open-resume'])
+const emit = defineEmits(['open-projects', 'open-project', 'open-resume'])
 </script>
 
 <template>
@@ -43,6 +51,50 @@ const emit = defineEmits(['open-projects', 'open-resume'])
         <ul class="list-clean focus-list">
           <li v-for="focus in researchFocus" :key="focus">{{ focus }}</li>
         </ul>
+      </div>
+    </section>
+
+    <section class="editorial-section">
+      <div class="section-label">
+        <p class="eyebrow">Preview</p>
+        <h2>Projects Overview</h2>
+      </div>
+      <div class="section-body">
+        <div class="home-preview-grid">
+          <button
+            v-for="project in projects.slice(0, homePreviewCount)"
+            :key="project.slug"
+            type="button"
+            class="home-preview-card"
+            @click="emit('open-project', project.slug)"
+          >
+            <img
+              v-if="project.cover"
+              class="home-preview-card__thumb"
+              :src="project.cover"
+              :alt="project.title"
+            />
+            <div v-else class="home-preview-card__thumb home-preview-card__thumb--placeholder" aria-hidden="true">
+              <span>{{ project.title }}</span>
+            </div>
+            <div class="home-preview-card__body">
+              <p class="project-card__meta">{{ project.groups.join(' / ') }}</p>
+              <h3>{{ project.title }}</h3>
+              <p class="home-preview-card__summary">{{ project.subtitle }}</p>
+              <div class="home-preview-card__tags">
+                <span v-for="tag in project.tags.slice(0, 4)" :key="tag" class="tag">
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <div class="home-preview-actions">
+          <button type="button" class="text-link" @click="emit('open-projects')">
+            Open full project index
+          </button>
+        </div>
       </div>
     </section>
   </div>
