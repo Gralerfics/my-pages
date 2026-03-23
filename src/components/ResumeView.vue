@@ -15,7 +15,7 @@ defineProps({
     <div class="page page-resume">
         <section class="resume-hero">
             <div>
-                <p class="eyebrow">Resume Snapshot</p>
+                <p class="eyebrow">Resume</p>
                 <h1>{{ profile.name }}</h1>
                 <p class="resume-hero__title">{{ profile.title }}</p>
             </div>

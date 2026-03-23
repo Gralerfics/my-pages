@@ -72,7 +72,7 @@ img {
 .app-shell {
     position: relative;
     min-height: 100vh;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .backdrop {
@@ -84,27 +84,43 @@ img {
   opacity: 0.8;
 }
 
-.site-header,
-.content-shell {
-    width: min(calc(100% - 32px), var(--content-width));
-    margin: 0 auto;
-}
-
 .site-header {
   position: sticky;
   top: 0;
   z-index: 10;
+  width: 100%;
+  padding: 16px 0;
+  border-radius: 0;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(0);
+  box-shadow: none;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    backdrop-filter 180ms ease,
+    padding 180ms ease;
+}
+
+.site-header.is-pinned {
+  background: rgba(247, 246, 242, 0.92);
+  border-bottom-color: var(--border);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 6px 18px rgba(133, 145, 160, 0.12);
+}
+
+.site-header__inner,
+.content-shell {
+  width: min(calc(100% - 32px), var(--content-width));
+  margin: 0 auto;
+}
+
+.site-header__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 20px 0 16px;
-  margin-top: 0;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
-  background: rgba(247, 246, 242, 0.94);
-  backdrop-filter: blur(10px);
-  box-shadow: none;
 }
 
 .site-header__main {
@@ -1013,7 +1029,10 @@ h3 {
         flex: 0 0 auto;
     }
 
-    .site-header,
+    .site-header__inner {
+      width: min(calc(100% - 20px), var(--content-width));
+    }
+
     .content-shell {
         width: min(calc(100% - 20px), var(--content-width));
     }

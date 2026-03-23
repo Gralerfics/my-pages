@@ -21,7 +21,7 @@ const relatedProjects = computed(() =>
 
 <template>
   <div class="page page-project">
-    <section class="project-hero panel">
+    <section class="project-hero">
       <div class="project-hero__body">
         <p class="eyebrow">{{ currentProject.groups.join(' / ') }} / {{ currentProject.period }}</p>
         <h1>{{ currentProject.title }}</h1>
