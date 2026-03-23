@@ -459,9 +459,9 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 18px;
-  padding: 0 0 18px;
-  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+  padding: 0;
+  border-bottom: none;
 }
 
 .project-tab {
@@ -478,6 +478,44 @@ h3 {
   border-color: var(--accent);
   color: var(--title);
   background: rgba(31, 76, 143, 0.08);
+}
+
+.projects-toolbar {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.54);
+}
+
+.projects-search {
+  display: grid;
+  gap: 10px;
+}
+
+.projects-search__label {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.projects-search__input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--title);
+  background: rgba(255, 255, 255, 0.82);
+  font: inherit;
+}
+
+.projects-search__input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .section-card,

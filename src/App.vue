@@ -2,6 +2,7 @@
 import { computed, watchEffect } from 'vue'
 import HomeView from './components/HomeView.vue'
 import ProjectDetailView from './components/ProjectDetailView.vue'
+import ProjectsView from './components/ProjectsView.vue'
 import ResumeView from './components/ResumeView.vue'
 import SiteNavigation from './components/SiteNavigation.vue'
 import { useHashRoute } from './composables/useHashRoute'
@@ -17,6 +18,7 @@ const currentProject = computed(() => {
 watchEffect(() => {
     const titles = {
         home: `${profile.name} | Home`,
+        projects: `${profile.name} | Projects`,
         resume: `${profile.name} | Resume`,
         project: `${currentProject.value.title} | ${profile.name}`,
     }
@@ -31,6 +33,7 @@ watchEffect(() => {
 
         <SiteNavigation
             :active-view="routeName"
+            :projects-label="routeName === 'project' ? currentProject.title : 'Projects'"
             :github-href="profile.github"
             @navigate="navigate"
         />
@@ -40,10 +43,15 @@ watchEffect(() => {
                 v-if="routeName === 'home'"
                 :profile="profile"
                 :research-focus="researchFocus"
+                @open-projects="navigate('projects')"
+                @open-resume="navigate('resume')"
+            />
+
+            <ProjectsView
+                v-else-if="routeName === 'projects'"
                 :projects="projects"
                 :project-tabs="projectTabs"
                 @open-project="navigate"
-                @open-resume="navigate('resume')"
             />
 
             <ProjectDetailView

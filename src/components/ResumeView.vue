@@ -13,7 +13,7 @@ defineProps({
 
 <template>
     <div class="page page-resume">
-        <section class="resume-hero panel">
+        <section class="resume-hero">
             <div>
                 <p class="eyebrow">Resume Snapshot</p>
                 <h1>{{ profile.name }}</h1>

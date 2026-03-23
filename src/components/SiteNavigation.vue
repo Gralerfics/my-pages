@@ -4,6 +4,10 @@ defineProps({
     type: String,
     required: true,
   },
+  projectsLabel: {
+    type: String,
+    default: 'Projects',
+  },
   githubHref: {
     type: String,
     required: true,
@@ -45,10 +49,10 @@ const items = [
         <button
           type="button"
           class="site-header__link"
-          :class="{ 'is-active': activeView === 'project' }"
-          @click="emit('navigate', 'home')"
+          :class="{ 'is-active': activeView === 'projects' || activeView === 'project' }"
+          @click="emit('navigate', 'projects')"
         >
-          Projects
+          {{ projectsLabel }}
         </button>
       </nav>
     </div>

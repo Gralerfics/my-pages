@@ -9,6 +9,10 @@ function readHash() {
 
     const [section, slug] = rawHash.split('/')
 
+    if (section === 'projects' && !slug) {
+        return { name: 'projects', slug: null }
+    }
+
     if (section === 'projects' && slug) {
         return { name: 'project', slug }
     }
@@ -35,6 +39,11 @@ export function useHashRoute() {
 
         if (target === 'resume') {
             window.location.hash = '/resume'
+            return
+        }
+
+        if (target === 'projects') {
+            window.location.hash = '/projects'
             return
         }
 
