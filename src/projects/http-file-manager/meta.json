@@ -1,0 +1,12 @@
+{
+  "title": "HTTP Server and File Manager",
+  "subtitle": "From protocol implementation to application workflow",
+  "period": "Networking / Software",
+  "groups": ["Web"],
+  "status": "Completed",
+  "repo": "https://github.com/Gralerfics/http_file_manager",
+  "summary": "A Python project implementing an HTTP server without relying on web frameworks, then extending it into a complete file manager application.",
+  "intro": "A systems-oriented web project that starts from protocol handling and ends with user-facing workflow.",
+  "tags": ["Python", "HTTP/1.1", "Backend", "Frontend"],
+  "order": 5
+}

@@ -1,0 +1,12 @@
+{
+  "title": "RTL-SDR Project",
+  "subtitle": "Software-defined radio hardware design and validation",
+  "period": "Hardware / Communication",
+  "groups": ["Embedded"],
+  "status": "Completed",
+  "repo": "https://github.com/Gralerfics/RTL-SDR-Project",
+  "summary": "A low-cost software-defined radio receiver project inspired by classical RTL-SDR architecture and validated with FM reception.",
+  "intro": "A communication hardware project that combines design artifacts with reasoning, documentation, and validation.",
+  "tags": ["SDR", "RF", "Hardware", "Signal Processing"],
+  "order": 6
+}
