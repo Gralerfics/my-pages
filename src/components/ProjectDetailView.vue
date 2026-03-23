@@ -10,12 +10,18 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    relatedProjectsCount: {
+        type: Number,
+        required: true,
+    },
 })
 
 const emit = defineEmits(['select-project'])
 
 const relatedProjects = computed(() =>
-    props.projects.filter((project) => project.slug !== props.currentProject.slug),
+    props.projects
+        .filter((project) => project.slug !== props.currentProject.slug)
+        .slice(0, props.relatedProjectsCount),
 )
 </script>
 
@@ -70,13 +76,13 @@ const relatedProjects = computed(() =>
             </div>
         </section>
 
-        <section class="editorial-section">
+        <section class="editorial-section editorial-section--related">
             <div class="section-label">
                 <p class="eyebrow">Browse</p>
                 <h2>Other projects</h2>
             </div>
             <div class="section-body">
-                <div class="project-list panel">
+                <div class="project-list">
                     <button
                         v-for="project in relatedProjects"
                         :key="project.slug"

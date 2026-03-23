@@ -64,6 +64,7 @@ watchEffect(() => {
                 v-else-if="routeName === 'project'"
                 :current-project="currentProject"
                 :projects="projects"
+                :related-projects-count="projectConfig.relatedProjectsCount"
                 @select-project="navigate"
             />
 
