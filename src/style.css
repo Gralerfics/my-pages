@@ -1328,6 +1328,127 @@ a.education-course-list__main:hover {
     vertical-align: baseline;
 }
 
+.project-article pre {
+    margin: 0;
+    padding: 18px 20px;
+    border: 1px solid rgba(39, 54, 74, 0.12);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    background:
+            linear-gradient(180deg, rgba(249, 250, 252, 0.98), rgba(242, 245, 249, 0.98));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    overflow-x: auto;
+}
+
+.project-article pre code {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    color: #24364d;
+    background: transparent;
+    font-family: 'Courier New', var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    white-space: normal;
+}
+
+.project-code-block__line {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 14px;
+    align-items: baseline;
+}
+
+.project-code-block__line-number {
+    color: rgba(110, 124, 144, 0.72);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    user-select: none;
+}
+
+.project-code-block__line-number::before {
+    counter-increment: project-code-line;
+    content: counter(project-code-line);
+}
+
+.project-code-block__line-content {
+    display: block;
+    white-space: pre;
+}
+
+.project-article pre code {
+    counter-reset: project-code-line;
+}
+
+.project-code-block {
+    margin-top: 16px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(133, 145, 160, 0.05);
+}
+
+.project-code-block__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 42px;
+    padding: 0 14px 0 16px;
+    border: 1px solid rgba(39, 54, 74, 0.12);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    background: rgba(235, 240, 246, 0.94);
+}
+
+.project-code-block__label {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.project-code-block__copy {
+    min-height: 30px;
+    padding: 0 10px;
+    border: 1px solid rgba(39, 54, 74, 0.12);
+    border-radius: 999px;
+    color: var(--title);
+    background: rgba(255, 255, 255, 0.78);
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition:
+            background-color 180ms ease,
+            border-color 180ms ease,
+            color 180ms ease;
+}
+
+.project-code-block__copy:hover {
+    border-color: rgba(31, 76, 143, 0.18);
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--accent-strong);
+}
+
+.project-article .token--comment {
+    color: #728196;
+}
+
+.project-article .token--string {
+    color: #9b5d2a;
+}
+
+.project-article .token--keyword {
+    color: #1f4c8f;
+    font-weight: 600;
+}
+
+.project-article .token--number {
+    color: #6b3d94;
+}
+
 .project-article img,
 .project-media img {
     cursor: zoom-in;

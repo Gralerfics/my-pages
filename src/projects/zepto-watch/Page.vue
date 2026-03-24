@@ -1,9 +1,27 @@
 <script setup>
+import ProjectCodeBlock from '../../components/ProjectCodeBlock.vue'
 import boardLayout0 from './assets/pcb-main-0.png'
 import boardLayout1 from './assets/pcb-main-1.png'
 import runtimePhoto from './assets/runtime.jpg'
 import prototyping from './assets/prototyping.jpg'
 import gravityDemo from './assets/gravity.gif'
+
+const gravityExampleCode = `
+    # icon: notebook
+    # color: 0x4F7BD9
+    # name: Gravity Demo
+
+    import zws
+    import lvgl as lv
+
+    field = zws.Display.getField()
+    label = lv.label(field)
+
+    while True:
+        ax, ay, az = zws.IMU.getAcceleration()
+        label.set_text(f"g = ({ax:.2f}, {ay:.2f}, {az:.2f})")
+        zws.System.delayMs(40)
+`
 </script>
 
 <template>
@@ -46,31 +64,14 @@ import gravityDemo from './assets/gravity.gif'
             <p>
                 Because it integrates many peripheral modules, numerous functions can be implemented through software calls. However, as a so-called smart device, I didn't want its firmware to be hardcoded like other projects, requiring troublesome code updates.
                 Finally, I considered building a runtime environment that could read user-provided applications. The simplest and most direct approach was to integrate a lightweight Python interpreter, encapsulating the hardware interfaces as packages, allowing users to write their own Python scripts to implement different functions.
-                Thus, the following implementation was derived.
+                Thus, the following implementation was derived. The firmware is based on FreeRTOS and is used to manage the system UI, file system, and the built-in open-source Python interpreter PikaPython, which is responsible for executing scripts.
             </p>
             <figure class="project-media project-media--medium">
                 <img :src="runtimePhoto" alt="Testing script applications from onboard storage" />
                 <figcaption>A prototype for the real-time system as a test for the runtime. Scripts are loaded as applications, not as hidden test code.</figcaption>
             </figure>
-
+            <ProjectCodeBlock lang="python" :code="gravityExampleCode" />
         </section>
-
-<!--        <section class="project-article__section">-->
-<!--            <h2>Scheduling and script constraints</h2>-->
-<!--            <p>-->
-<!--                The most practical detail in the documentation is the scheduling rule. Script code is expected-->
-<!--                to yield by calling <code>zws.System.delayMs()</code>, which is backed by FreeRTOS-->
-<!--                <code>osDelay</code>. Without that yield point, UI refresh, touch handling, brightness sync,-->
-<!--                and other system tasks stall. This is a good example of the project being honest about its-->
-<!--                execution model: the scripting layer is intentionally lightweight, but it is still running in-->
-<!--                a cooperative environment on top of a real RTOS.-->
-<!--            </p>-->
-<!--            <p>-->
-<!--                That constraint also explains the rest of the API design. The runtime is not trying to emulate-->
-<!--                desktop Python. It exposes only the parts of the system that can be made predictable on a-->
-<!--                small embedded target.-->
-<!--            </p>-->
-<!--        </section>-->
 
         <section class="project-article__section">
             <h2>Python-facing API surface</h2>
