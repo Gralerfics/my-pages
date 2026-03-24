@@ -815,6 +815,16 @@ h3 {
   min-width: 0;
 }
 
+a.education-course-list__main {
+  color: inherit;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+a.education-course-list__main:hover {
+  color: var(--accent);
+}
+
 .education-course-list__item span {
   margin: 0;
 }

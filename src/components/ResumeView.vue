@@ -115,7 +115,13 @@ const emit = defineEmits(['open-projects'])
                                                     :key="typeof course === 'string' ? course : course.name"
                                                     class="education-course-list__item"
                                                 >
-                                                    <div class="education-course-list__main">
+                                                    <component
+                                                        :is="typeof course !== 'string' && course.link ? 'a' : 'div'"
+                                                        class="education-course-list__main"
+                                                        :href="typeof course !== 'string' ? course.link : null"
+                                                        :target="typeof course !== 'string' && course.link ? '_blank' : null"
+                                                        :rel="typeof course !== 'string' && course.link ? 'noreferrer' : null"
+                                                    >
                                                         <span
                                                             v-if="typeof course !== 'string' && course.code"
                                                             class="education-course-list__code"
@@ -123,7 +129,7 @@ const emit = defineEmits(['open-projects'])
                                                             {{ course.code }}
                                                         </span>
                                                         <span>{{ typeof course === 'string' ? course : course.name }}</span>
-                                                    </div>
+                                                    </component>
                                                     <span v-if="typeof course !== 'string' && course.grade" class="education-course-list__grade">
                                                         {{ course.grade }}
                                                     </span>
