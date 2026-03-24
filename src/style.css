@@ -15,12 +15,13 @@
     --radius-lg: 10px;
     --radius-md: 8px;
     --radius-sm: 6px;
-    --content-width: 1080px;
+    --content-width: 972px;
     --font-sans: 'Segoe UI Variable Text', 'Bahnschrift', 'Segoe UI', sans-serif;
     --font-serif: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
     --font-mono: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
 
     font-family: var(--font-sans);
+    font-size: 90%;
     line-height: 1.55;
     font-weight: 400;
     color: var(--text);
@@ -907,7 +908,7 @@ a.education-course-list__main:hover {
 .education-panel-leave-from {
     opacity: 1;
     transform: translateY(0);
-    max-height: 320px;
+    max-height: 1200px;
 }
 
 .section-stack {
