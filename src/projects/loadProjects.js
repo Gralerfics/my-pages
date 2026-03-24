@@ -22,11 +22,20 @@ const projectEntries = Object.entries(metaModules).map(([path, meta]) => {
     : meta.group
       ? [meta.group]
       : []
+  const repositoryLinks = Array.isArray(meta.repos)
+    ? meta.repos
+    : meta.repo
+      ? [{
+          label: 'Repository',
+          href: meta.repo,
+        }]
+      : []
 
   return {
     slug,
     ...meta,
     groups,
+    repositoryLinks,
     cover: coverModules[`./${slug}/cover.png`]
       ?? coverModules[`./${slug}/cover.jpg`]
       ?? coverModules[`./${slug}/cover.jpeg`]

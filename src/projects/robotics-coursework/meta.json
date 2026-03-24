@@ -1,10 +1,24 @@
 {
   "title": "Robotics Navigation and Control Coursework",
-  "subtitle": "Integrated robotics labs in navigation, manipulation, and control",
-  "time": "2022.09 - 2023.12",
+  "subtitle": "Three course projects in mobile navigation, robot perception, and visual servoing",
+  "time": "2023.05 - 2024.01",
   "groups": ["Robotics"],
   "status": "Completed",
-  "intro": "A grouped project entry covering several robotics laboratory tasks in obstacle navigation, waypoint stopping, QR-based object interaction, and whiteboard-following control.",
-  "tags": ["Robotics", "Navigation", "Control", "ROS"],
+  "intro": "A grouped robotics entry covering three separate course projects: ROS1 waypoint navigation with target stopping, ROS2 Nav2 and manipulation around visual markers, and camera-guided whiteboard following with a Kinova arm.",
+  "tags": ["Robotics", "ROS1", "ROS2", "Nav2", "Aruco", "Control"],
+  "repos": [
+    {
+      "label": "EE211 Repo",
+      "href": "https://github.com/Gralerfics/SUSTech-EE211-Robotic-Perception-and-Intelligence-Laboratory"
+    },
+    {
+      "label": "EE346 Repo",
+      "href": "https://github.com/Gralerfics/SUSTech-EE346-Mobile-Robot-Navigation-and-Control-Laboratory"
+    },
+    {
+      "label": "EE368 Repo",
+      "href": "https://github.com/Gralerfics/SUSTech-EE368-Robotic-Motion-and-Control-Project"
+    }
+  ],
   "priority": 900
 }

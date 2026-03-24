@@ -1294,6 +1294,21 @@ a.education-course-list__main:hover {
   gap: 24px;
 }
 
+.project-article a[href] {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: rgba(31, 76, 143, 0.28);
+  text-underline-offset: 0.16em;
+  transition:
+    color 180ms ease,
+    text-decoration-color 180ms ease;
+}
+
+.project-article a[href]:hover {
+  color: var(--accent-strong);
+  text-decoration-color: rgba(22, 56, 106, 0.46);
+}
+
 .project-article code {
   display: inline-block;
   margin: 0 0.14em;
@@ -1321,6 +1336,22 @@ a.education-course-list__main:hover {
 .project-article__section h2 {
   margin-bottom: 12px;
   font-size: 1.45rem;
+}
+
+.project-article__section .bullet-list {
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+.project-article__ending {
+  display: grid;
+  place-items: center;
+  margin-top: 34px;
+  margin-bottom: 20px;
+  color: rgba(31, 76, 143, 0.5);
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  line-height: 1;
 }
 
 .image-lightbox {

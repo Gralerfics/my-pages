@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 const props = defineProps({
     currentProject: {
@@ -50,6 +50,17 @@ function collectGalleryItems() {
                 ? '(cover)'
                 : image.closest('figure')?.querySelector('figcaption')?.textContent?.trim() || '',
         }))
+}
+
+function normalizeArticleLinks() {
+    if (!pageRoot.value) {
+        return
+    }
+
+    pageRoot.value.querySelectorAll('.section-body .project-article a[href]').forEach((link) => {
+        link.setAttribute('target', '_blank')
+        link.setAttribute('rel', 'noreferrer')
+    })
 }
 
 function openLightbox(clickedImage) {
@@ -370,9 +381,12 @@ function endLightboxDrag() {
 
 watch(
     () => props.currentProject.slug,
-    () => {
+    async () => {
         closeLightbox()
+        await nextTick()
+        normalizeArticleLinks()
     },
+    { immediate: true },
 )
 
 onBeforeUnmount(() => {
@@ -416,13 +430,14 @@ if (typeof window !== 'undefined') {
 
         <div class="project-hero__actions">
           <a
-            v-if="currentProject.repo"
+            v-for="repository in currentProject.repositoryLinks"
+            :key="repository.href"
             class="button button--primary"
-            :href="currentProject.repo"
+            :href="repository.href"
                         target="_blank"
                         rel="noreferrer"
           >
-            Open Repository
+            {{ repository.label }}
           </a>
           <span v-if="currentProject.time" class="status-pill">{{ currentProject.time }}</span>
           <span v-if="currentProject.status" class="status-pill">{{ currentProject.status }}</span>
@@ -438,6 +453,7 @@ if (typeof window !== 'undefined') {
             </div>
             <div class="section-body" @click="handleImageClick">
                 <component :is="currentProject.pageComponent" />
+                <p class="project-article__ending" aria-hidden="true">§</p>
             </div>
         </section>
 
