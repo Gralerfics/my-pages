@@ -970,6 +970,15 @@ a.education-course-list__main:hover {
 .project-card__head {
     display: grid;
     gap: 6px;
+    min-width: 0;
+}
+
+.project-card__head h3 {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 
 .project-card__thumb {
@@ -1897,8 +1906,7 @@ a.education-course-list__main:hover {
     .side-card,
     .project-list__item,
     .timeline__item,
-    .resume-detail-item,
-    .project-card__content {
+    .resume-detail-item {
         grid-template-columns: 1fr;
     }
 
@@ -2045,5 +2053,17 @@ a.education-course-list__main:hover {
     .education-course-list__grade {
         justify-self: start;
         text-align: left;
+    }
+}
+
+@media (max-width: 560px) {
+    .project-card__content {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .project-card__thumb,
+    .project-card__thumb--placeholder {
+        aspect-ratio: 16 / 10;
     }
 }
