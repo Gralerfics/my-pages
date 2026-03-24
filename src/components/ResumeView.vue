@@ -1,5 +1,35 @@
 <script setup>
+import { ref } from 'vue'
+
 const toLines = (detail) => (Array.isArray(detail) ? detail : [detail])
+const openEducationEntries = ref([])
+const toCourseGroups = (courses) => {
+    if (!Array.isArray(courses) || courses.length === 0) {
+        return []
+    }
+
+    if (courses.some((entry) => Array.isArray(entry?.items))) {
+        return courses.map((entry) => ({
+            category: entry.category ?? '',
+            items: entry.items ?? [],
+        }))
+    }
+
+    return [
+        {
+            category: '',
+            items: courses,
+        },
+    ]
+}
+
+const isEducationOpen = (entryKey) => openEducationEntries.value.includes(entryKey)
+
+const toggleEducation = (entryKey) => {
+    openEducationEntries.value = isEducationOpen(entryKey)
+        ? openEducationEntries.value.filter((key) => key !== entryKey)
+        : [...openEducationEntries.value, entryKey]
+}
 
 defineProps({
     profile: {
@@ -46,9 +76,66 @@ const emit = defineEmits(['open-projects'])
                     <li v-for="item in resumeContent.education" :key="`${item.time}-${item.title}`" class="timeline__item">
                         <p class="timeline__period">{{ item.time }}</p>
                         <div class="timeline__content">
-                            <h3>{{ item.title }}</h3>
-                            <p class="resume-entry__org">{{ item.organization }}</p>
-                            <p>{{ item.detail }}</p>
+                            <div class="timeline__heading">
+                                <div>
+                                    <h3>{{ item.title }}</h3>
+                                    <p class="resume-entry__org">{{ item.organization }}</p>
+                                </div>
+                                <button
+                                    v-if="item.courses?.length"
+                                    type="button"
+                                    class="text-link timeline__toggle"
+                                    @click="toggleEducation(`${item.time}-${item.title}`)"
+                                >
+                                    {{
+                                        isEducationOpen(`${item.time}-${item.title}`)
+                                            ? 'Hide courses & grades'
+                                            : 'Courses & grades details'
+                                    }}
+                                </button>
+                            </div>
+
+                            <Transition name="education-panel">
+                                <div
+                                    v-if="item.courses?.length && isEducationOpen(`${item.time}-${item.title}`)"
+                                    class="education-panel"
+                                >
+                                    <div class="education-course-groups">
+                                        <section
+                                            v-for="group in toCourseGroups(item.courses)"
+                                            :key="group.category || 'default'"
+                                            class="education-course-group"
+                                        >
+                                            <p v-if="group.category" class="education-course-group__title">
+                                                {{ group.category }}
+                                            </p>
+                                            <ul class="list-clean education-course-list">
+                                                <li
+                                                    v-for="course in group.items"
+                                                    :key="typeof course === 'string' ? course : course.name"
+                                                    class="education-course-list__item"
+                                                >
+                                                    <div class="education-course-list__main">
+                                                        <span
+                                                            v-if="typeof course !== 'string' && course.code"
+                                                            class="education-course-list__code"
+                                                        >
+                                                            {{ course.code }}
+                                                        </span>
+                                                        <span>{{ typeof course === 'string' ? course : course.name }}</span>
+                                                    </div>
+                                                    <span v-if="typeof course !== 'string' && course.grade" class="education-course-list__grade">
+                                                        {{ course.grade }}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </section>
+                                    </div>
+                                    <p v-if="item.coursesNote" class="education-panel__note">
+                                        {{ item.coursesNote }}
+                                    </p>
+                                </div>
+                            </Transition>
                         </div>
                     </li>
                 </ol>

@@ -747,6 +747,128 @@ h3 {
   margin-bottom: 8px;
 }
 
+.timeline__heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.timeline__toggle {
+  flex: none;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.education-panel {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.44);
+  overflow: hidden;
+}
+
+.education-course-groups {
+  display: grid;
+  gap: 16px;
+}
+
+.education-course-group {
+  display: grid;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.education-course-group:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.education-course-group__title {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.education-course-list {
+  display: grid;
+  gap: 10px;
+}
+
+.education-course-list__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.education-course-list__main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.education-course-list__item span {
+  margin: 0;
+}
+
+.education-course-list__code {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+}
+
+.education-course-list__grade {
+  flex: none;
+  color: var(--title);
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+}
+
+.education-panel__note {
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.education-panel-enter-active,
+.education-panel-leave-active {
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease,
+    max-height 220ms ease,
+    margin-top 220ms ease,
+    padding-top 220ms ease,
+    padding-bottom 220ms ease;
+}
+
+.education-panel-enter-from,
+.education-panel-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+  max-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.education-panel-enter-to,
+.education-panel-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 320px;
+}
+
 .section-stack {
     display: grid;
     gap: 18px;
@@ -1165,6 +1287,12 @@ h3 {
     .resume-detail-item,
     .project-card__content {
         grid-template-columns: 1fr;
+    }
+
+    .timeline__heading,
+    .education-course-list__item {
+        display: grid;
+        gap: 8px;
     }
 
     .contact-strip__links {
