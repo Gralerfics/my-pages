@@ -1,11 +1,11 @@
 {
-  "title": "NodalHDL",
-  "subtitle": "A Python-embedded digital circuit and HDL generation toolchain",
-  "time": "2024.06 - Present",
-  "groups": ["Digital Design", "Embedded"],
-  "status": "Ongoing",
-  "repo": "https://github.com/Gralerfics/nodalhdl",
-  "intro": "A Python-centered digital circuit design toolchain focused on structural description, automatic pipelining, combinational high-level synthesis, and HDL generation.",
-  "tags": ["Python", "HDL", "HLS", "FPGA", "Toolchain"],
-  "priority": 1000
+    "title": "NodalHDL",
+    "subtitle": "A Python-embedded digital circuit and HDL generation toolchain",
+    "time": "2025.01 - 2025.05",
+    "groups": ["Digital Design", "Graphics"],
+    "status": "To be improved",
+    "repo": "https://github.com/Gralerfics/nodalhdl",
+    "intro": "A Python-centered digital circuit design toolchain focused on structural description, automatic pipelining, combinational high-level synthesis, and HDL generation.",
+    "tags": ["HDL", "FPGA", "Python", "HLS", "Toolchain"],
+    "priority": 1000
 }
