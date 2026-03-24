@@ -24,6 +24,7 @@ const relatedProjects = computed(() =>
         .slice(0, props.relatedProjectsCount),
 )
 
+const pageRoot = ref(null)
 const lightbox = ref(null)
 const lightboxImage = ref(null)
 const dragState = ref({
@@ -34,8 +35,33 @@ const dragState = ref({
     offsetY: 0,
 })
 
-function openLightbox(src, alt = '') {
-    lightbox.value = { src, alt, scale: 1, offsetX: 0, offsetY: 0 }
+function collectGalleryItems() {
+    if (!pageRoot.value) {
+        return []
+    }
+
+    return Array.from(pageRoot.value.querySelectorAll('.project-cover__image, .section-body img'))
+        .map((image, index) => ({
+            id: `${index}:${image.currentSrc || image.src}`,
+            src: image.currentSrc || image.src,
+            alt: image.alt || '',
+            caption: image.closest('figure')?.querySelector('figcaption')?.textContent?.trim() || '',
+        }))
+}
+
+function openLightbox(clickedImage) {
+    const items = collectGalleryItems()
+    const clickedSrc = clickedImage.currentSrc || clickedImage.src
+    const currentIndex = Math.max(
+        0,
+        items.findIndex((item) => item.src === clickedSrc),
+    )
+
+    lightbox.value = {
+        items,
+        currentIndex,
+        viewStates: {},
+    }
     document.body.style.overflow = 'hidden'
 }
 
@@ -50,12 +76,96 @@ function handleImageClick(event) {
         return
     }
 
-    openLightbox(image.currentSrc || image.src, image.alt || '')
+    openLightbox(image)
+}
+
+function getCurrentItem() {
+    return lightbox.value?.items?.[lightbox.value.currentIndex] ?? null
+}
+
+function getCurrentViewState() {
+    const currentItem = getCurrentItem()
+    if (!lightbox.value || !currentItem) {
+        return null
+    }
+
+    return lightbox.value.viewStates[currentItem.id] ?? { scale: 1, offsetX: 0, offsetY: 0 }
+}
+
+function setCurrentViewState(nextState) {
+    const currentItem = getCurrentItem()
+    if (!lightbox.value || !currentItem) {
+        return
+    }
+
+    lightbox.value = {
+        ...lightbox.value,
+        viewStates: {
+            ...lightbox.value.viewStates,
+            [currentItem.id]: nextState,
+        },
+    }
+}
+
+function canGoPrev() {
+    return Boolean(lightbox.value && lightbox.value.currentIndex > 0)
+}
+
+function canGoNext() {
+    return Boolean(lightbox.value && lightbox.value.currentIndex < lightbox.value.items.length - 1)
+}
+
+function showPrevImage() {
+    if (!canGoPrev()) {
+        return
+    }
+
+    lightbox.value = {
+        ...lightbox.value,
+        currentIndex: lightbox.value.currentIndex - 1,
+    }
+    endLightboxDrag()
+}
+
+function showNextImage() {
+    if (!canGoNext()) {
+        return
+    }
+
+    lightbox.value = {
+        ...lightbox.value,
+        currentIndex: lightbox.value.currentIndex + 1,
+    }
+    endLightboxDrag()
+}
+
+function jumpToImage(index) {
+    if (!lightbox.value || index < 0 || index >= lightbox.value.items.length) {
+        return
+    }
+
+    lightbox.value = {
+        ...lightbox.value,
+        currentIndex: index,
+    }
+    endLightboxDrag()
 }
 
 function handleKeydown(event) {
     if (event.key === 'Escape' && lightbox.value) {
         closeLightbox()
+        return
+    }
+
+    if (event.key === 'ArrowLeft' && lightbox.value) {
+        event.preventDefault()
+        showPrevImage()
+        return
+    }
+
+    if (event.key === 'ArrowRight' && lightbox.value) {
+        event.preventDefault()
+        showNextImage()
     }
 }
 
@@ -68,22 +178,26 @@ function handleLightboxWheel(event) {
 
     const rect = lightboxImage.value.getBoundingClientRect()
     const delta = event.deltaY < 0 ? 0.16 : -0.16
-    const prevScale = lightbox.value.scale
-    const nextScale = Math.min(4, Math.max(1, Number((lightbox.value.scale + delta).toFixed(2))))
+    const currentViewState = getCurrentViewState()
+    const prevScale = currentViewState.scale
+    const nextScale = Math.min(4, Math.max(1, Number((prevScale + delta).toFixed(2))))
     const pointerX = event.clientX - rect.left - rect.width / 2
     const pointerY = event.clientY - rect.top - rect.height / 2
     const scaleRatio = nextScale / prevScale
 
-    lightbox.value = {
-        ...lightbox.value,
+    setCurrentViewState({
         scale: nextScale,
-        offsetX: nextScale === 1 ? 0 : lightbox.value.offsetX - pointerX * (scaleRatio - 1),
-        offsetY: nextScale === 1 ? 0 : lightbox.value.offsetY - pointerY * (scaleRatio - 1),
-    }
+        offsetX: nextScale === 1 ? 0 : currentViewState.offsetX - pointerX * (scaleRatio - 1),
+        offsetY: nextScale === 1 ? 0 : currentViewState.offsetY - pointerY * (scaleRatio - 1),
+    })
 }
 
 function handleLightboxPointerDown(event) {
     if (!lightboxImage.value) {
+        return
+    }
+
+    if (event.target.closest('.image-lightbox__close, .image-lightbox__nav, .image-lightbox__meta')) {
         return
     }
 
@@ -92,7 +206,8 @@ function handleLightboxPointerDown(event) {
         return
     }
 
-    if (lightbox.value?.scale <= 1) {
+    const currentViewState = getCurrentViewState()
+    if (!currentViewState || currentViewState.scale <= 1) {
         return
     }
 
@@ -100,13 +215,13 @@ function handleLightboxPointerDown(event) {
         active: true,
         startX: event.clientX,
         startY: event.clientY,
-        offsetX: lightbox.value.offsetX,
-        offsetY: lightbox.value.offsetY,
+        offsetX: currentViewState.offsetX,
+        offsetY: currentViewState.offsetY,
     }
 }
 
 function handleLightboxPointerMove(event) {
-    if (!dragState.value.active || !lightbox.value) {
+    if (!dragState.value.active) {
         return
     }
 
@@ -115,11 +230,11 @@ function handleLightboxPointerMove(event) {
     const deltaX = event.clientX - dragState.value.startX
     const deltaY = event.clientY - dragState.value.startY
 
-    lightbox.value = {
-        ...lightbox.value,
+    setCurrentViewState({
+        ...getCurrentViewState(),
         offsetX: dragState.value.offsetX + deltaX,
         offsetY: dragState.value.offsetY + deltaY,
-    }
+    })
 }
 
 function endLightboxDrag() {
@@ -147,6 +262,7 @@ if (typeof window !== 'undefined') {
 
 <template>
     <div class="page page-project">
+        <div ref="pageRoot">
         <section v-if="currentProject.cover" class="project-cover" @click="handleImageClick">
             <img
                 class="project-cover__image"
@@ -219,6 +335,7 @@ if (typeof window !== 'undefined') {
                 </div>
             </div>
         </section>
+        </div>
 
         <teleport to="body">
             <div
@@ -236,18 +353,60 @@ if (typeof window !== 'undefined') {
                 <button type="button" class="image-lightbox__close" @click="closeLightbox">
                     Close
                 </button>
+                <button
+                    v-if="canGoPrev()"
+                    type="button"
+                    class="image-lightbox__nav image-lightbox__nav--prev"
+                    @click.stop="showPrevImage"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M14.5 5.5 8 12l6.5 6.5" />
+                    </svg>
+                </button>
+                <button
+                    v-if="canGoNext()"
+                    type="button"
+                    class="image-lightbox__nav image-lightbox__nav--next"
+                    @click.stop="showNextImage"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="m9.5 5.5 6.5 6.5-6.5 6.5" />
+                    </svg>
+                </button>
                 <div class="image-lightbox__viewport">
                     <img
                         ref="lightboxImage"
                         class="image-lightbox__image"
-                        :src="lightbox.src"
-                        :alt="lightbox.alt"
+                        :src="getCurrentItem()?.src"
+                        :alt="getCurrentItem()?.alt"
                         draggable="false"
                         @dragstart.prevent
                         :style="{
-                            transform: `translate(${lightbox.offsetX}px, ${lightbox.offsetY}px) scale(${lightbox.scale})`,
+                            transform: `translate(${getCurrentViewState()?.offsetX ?? 0}px, ${getCurrentViewState()?.offsetY ?? 0}px) scale(${getCurrentViewState()?.scale ?? 1})`,
                         }"
                     />
+                </div>
+                <div class="image-lightbox__meta">
+                    <div class="image-lightbox__info">
+                        <p class="image-lightbox__counter">
+                            {{ lightbox.currentIndex + 1 }} / {{ lightbox.items.length }}
+                        </p>
+                        <p v-if="getCurrentItem()?.caption" class="image-lightbox__caption">
+                            {{ getCurrentItem()?.caption }}
+                        </p>
+                    </div>
+                    <div v-if="lightbox.items.length > 1" class="image-lightbox__gallery">
+                        <button
+                            v-for="(item, index) in lightbox.items"
+                            :key="item.id"
+                            type="button"
+                            class="image-lightbox__thumb"
+                            :class="{ 'is-active': index === lightbox.currentIndex }"
+                            @click.stop="jumpToImage(index)"
+                        >
+                            <img :src="item.src" :alt="item.alt" draggable="false" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </teleport>
