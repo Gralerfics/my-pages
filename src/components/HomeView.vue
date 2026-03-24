@@ -95,7 +95,7 @@ onBeforeUnmount(() => {
         <section class="editorial-section">
             <div class="section-label">
                 <p class="eyebrow">Preview</p>
-                <h2>Projects Overview</h2>
+                <h2>Selected projects</h2>
       </div>
       <div class="section-body">
         <div class="home-preview-grid">

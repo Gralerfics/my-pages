@@ -1,5 +1,5 @@
 export const projectConfig = {
-  homePreviewCount: 6,
+  homePreviewCount: 10,
   relatedProjectsCount: 5,
   groupPriority: {
     Robotics: 40,

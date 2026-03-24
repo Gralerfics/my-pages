@@ -2,10 +2,10 @@
   "title": "OthellooO",
   "subtitle": "A 3D board game with rendering experiments",
   "time": "2022.10 - 2023.02",
-  "groups": ["Other"],
+  "groups": ["Graphics"],
   "status": "Completed",
   "repo": "https://github.com/Gralerfics/OthellooO",
   "intro": "A 3D Reversi system implemented with Java, Swing, and LWJGL, combining gameplay features with graphics exploration.",
   "tags": ["Java", "Swing", "LWJGL", "OpenGL", "Shader"],
-  "priority": 60
+  "priority": 50
 }
