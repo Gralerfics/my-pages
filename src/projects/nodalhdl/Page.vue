@@ -37,7 +37,7 @@ import discoteq2Result from './assets/discoteq2-example.gif'
         structural lowering, timing analysis, automatic pipelining, HDL emission, and board-level
         integration outside the core repository.
       </p>
-      <div class="project-media-grid">
+      <div class="project-media-grid project-media-grid--three">
         <figure class="project-media">
           <img :src="cornell267Result" alt="Cornell 267 shader running from the NodalHDL-generated pipeline" />
           <figcaption>Cornell 267 variant used as the main cover demonstration.</figcaption>
@@ -205,46 +205,3 @@ import discoteq2Result from './assets/discoteq2-example.gif'
     </section>
   </div>
 </template>
-
-<style scoped>
-.nodalhdl-article strong {
-  color: var(--title);
-  font-weight: 600;
-}
-
-.project-media {
-  display: grid;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.project-media--medium {
-  max-width: 700px;
-}
-
-.project-media-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 16px;
-}
-
-.project-media img {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.56);
-}
-
-.project-media figcaption {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-@media (max-width: 980px) {
-  .project-media-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

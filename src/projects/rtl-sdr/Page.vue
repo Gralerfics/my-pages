@@ -65,9 +65,8 @@ import boardV20 from './assets/ver-2-0.jpg'
         preserved so that the power tree and control buses could be inspected without reworking the board.
       </p>
 
-      <figure>
+      <figure class="project-media project-media--medium">
         <img
-          class="project-media project-media--medium"
           :src="boardV11"
           alt="RTL-SDR board revision 1.1"
         />
@@ -85,9 +84,8 @@ import boardV20 from './assets/ver-2-0.jpg'
         itself, but matters immediately in a real board.
       </p>
 
-      <figure>
+      <figure class="project-media project-media--medium">
         <img
-          class="project-media project-media--medium"
           :src="boardV20"
           alt="RTL-SDR board revision 2.0"
         />

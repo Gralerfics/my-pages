@@ -1,7 +1,9 @@
 <script setup>
-import boardRender from './assets/ui-home.png'
-import boardLayout from './assets/ui-scripts.png'
-import runtimePhoto from './assets/hardware-stack.jpg'
+import boardLayout0 from './assets/pcb-main-0.png'
+import boardLayout1 from './assets/pcb-main-1.png'
+import runtimePhoto from './assets/runtime.jpg'
+import prototyping from './assets/prototyping.jpg'
+import gravityDemo from './assets/gravity.gif'
 </script>
 
 <template>
@@ -11,47 +13,64 @@ import runtimePhoto from './assets/hardware-stack.jpg'
                 <strong>Features.</strong> This project implements a usable application runtime (based on an open-source Python interpreter <a href="https://github.com/pikasTech/pikaPython">PikaPython</a>) on a STM32 watch instead of a fixed-function firmware. Second, the resources on board are open to the runtime through custom drivers.
             </p>
             <p class="detail-text">
-                <strong>Stack.</strong> STM32F405RGT6, FreeRTOS, LVGL, FatFs, board-level peripherals (touchscreen, battery management, microphone, buttons, IMU, vibration motor, bluetooth, USB 2.0, EEPROM, RTC), and PikaPython with custom libraries.
+                <strong>Stacks.</strong> STM32F405RGT6, FreeRTOS, LVGL, FatFs, board-level peripherals (touchscreen, battery management, microphone, buttons, IMU, vibration motor, bluetooth, USB 2.0, EEPROM, RTC), and PikaPython with custom libraries.
             </p>
+        </section>
+
+        <section class="project-article__section">
+            <h2>Hardware development</h2>
+            <p>
+                It begins with prototyping, where driver circuits are manually built on a breadboard to perform initial debugging and firmware writing for peripherals such as the touchscreen and IMU.
+            </p>
+            <figure class="project-media project-media--medium">
+                <img :src="prototyping" alt="Hardware platform during prototyping" />
+                <figcaption>The hardware platform during prototyping.</figcaption>
+            </figure>
+            <p>
+                After completing the verification and deciding which peripherals to use, I proceeded with component selection and PCB design. Since that was my first time designing an embedded system, I made many mistakes and iterated through three versions. The final design was a magnetically attached stacked board: the upper layer was the screen module, and the lower layer contained the controller and peripherals. The layout of the lower board is shown in the figure below.
+            </p>
+            <div class="project-media-grid project-media-grid--two">
+                <figure class="project-media">
+                    <img :src="boardLayout0" alt="Front view of the bottom plate layout design" />
+                    <figcaption>A front view of the bottom plate layout design.</figcaption>
+                </figure>
+                <figure class="project-media">
+                    <img :src="boardLayout1" alt="Reverse view of the bottom plate layout design" />
+                    <figcaption>A reverse view of the bottom plate layout design.</figcaption>
+                </figure>
+            </div>
         </section>
 
         <section class="project-article__section">
             <h2>Runtime model</h2>
             <p>
-                The core design choice was to make user scripts deployable as files rather than building every
-                function into the firmware image. The README documents the mechanism clearly: the watch mounts
-                as a USB mass-storage device, scripts are copied into the root directory, and the firmware
-                scans them into an application list. Each script begins with a small metadata header that
-                declares icon, name, and color. That header is not decoration; it is the contract between the
-                filesystem and the launcher UI.
+                Because it integrates many peripheral modules, numerous functions can be implemented through software calls. However, as a so-called smart device, I didn't want its firmware to be hardcoded like other projects, requiring troublesome code updates.
+                Finally, I considered building a runtime environment that could read user-provided applications. The simplest and most direct approach was to integrate a lightweight Python interpreter, encapsulating the hardware interfaces as packages, allowing users to write their own Python scripts to implement different functions.
+                Thus, the following implementation was derived.
             </p>
-            <p>
-                This means the boundary of the project is not "watch firmware plus some demos". It is closer
-                to a small embedded runtime with a launcher, a file format convention, a script interpreter,
-                and a wrapped device API.
-            </p>
-            <figure class="project-media project-media--narrow">
-                <img :src="runtimePhoto" alt="ZeptoWatch running script applications from onboard storage" />
-                <figcaption>Scripts are loaded as applications, not as hidden test code.</figcaption>
+            <figure class="project-media project-media--medium">
+                <img :src="runtimePhoto" alt="Testing script applications from onboard storage" />
+                <figcaption>A prototype for the real-time system as a test for the runtime. Scripts are loaded as applications, not as hidden test code.</figcaption>
             </figure>
+
         </section>
 
-        <section class="project-article__section">
-            <h2>Scheduling and script constraints</h2>
-            <p>
-                The most practical detail in the documentation is the scheduling rule. Script code is expected
-                to yield by calling <code>zws.System.delayMs()</code>, which is backed by FreeRTOS
-                <code>osDelay</code>. Without that yield point, UI refresh, touch handling, brightness sync,
-                and other system tasks stall. This is a good example of the project being honest about its
-                execution model: the scripting layer is intentionally lightweight, but it is still running in
-                a cooperative environment on top of a real RTOS.
-            </p>
-            <p>
-                That constraint also explains the rest of the API design. The runtime is not trying to emulate
-                desktop Python. It exposes only the parts of the system that can be made predictable on a
-                small embedded target.
-            </p>
-        </section>
+<!--        <section class="project-article__section">-->
+<!--            <h2>Scheduling and script constraints</h2>-->
+<!--            <p>-->
+<!--                The most practical detail in the documentation is the scheduling rule. Script code is expected-->
+<!--                to yield by calling <code>zws.System.delayMs()</code>, which is backed by FreeRTOS-->
+<!--                <code>osDelay</code>. Without that yield point, UI refresh, touch handling, brightness sync,-->
+<!--                and other system tasks stall. This is a good example of the project being honest about its-->
+<!--                execution model: the scripting layer is intentionally lightweight, but it is still running in-->
+<!--                a cooperative environment on top of a real RTOS.-->
+<!--            </p>-->
+<!--            <p>-->
+<!--                That constraint also explains the rest of the API design. The runtime is not trying to emulate-->
+<!--                desktop Python. It exposes only the parts of the system that can be made predictable on a-->
+<!--                small embedded target.-->
+<!--            </p>-->
+<!--        </section>-->
 
         <section class="project-article__section">
             <h2>Python-facing API surface</h2>
@@ -79,10 +98,9 @@ import runtimePhoto from './assets/hardware-stack.jpg'
         </section>
 
         <section class="project-article__section">
-            <h2>What the example scripts actually cover</h2>
+            <h2>The example scripts / applications</h2>
             <p>
-                The sample scripts are valuable because they exercise different subsystems rather than just
-                repeating the same pattern. The repository includes:
+                I put some example scripts in storage, which are used to test the operation of different peripherals and subsystems:
             </p>
             <ul class="bullet-list">
                 <li>UI and callback handling in the calculator example.</li>
@@ -90,86 +108,22 @@ import runtimePhoto from './assets/hardware-stack.jpg'
                 <li>RTC interaction and settings UI.</li>
                 <li>Brightness, temperature, charging, and battery-related tests.</li>
                 <li>IMU-based small physics sketches using acceleration input.</li>
-                <li>Vibration and image-resource access in lightweight application demos.</li>
+                <li>Vibration and image-resource access in an electronic wooden fish demo.</li>
             </ul>
             <p>
-                The frequency example is particularly representative. It combines microphone sampling,
-                windowing, real FFT, magnitude calculation, and LVGL slider updates in a loop that still yields
-                to the scheduler. That is enough to show the runtime can support sensor processing, display
-                output, and repeated UI updates without falling apart.
+                The frequency example covers functions such as microphone, computing acceleration library and UI drawing, which is relatively comprehensive; there is also a small demo that uses IMU to detect the direction of gravity, as shown in the figure below:
             </p>
-        </section>
-
-        <section class="project-article__section">
-            <h2>Firmware and hardware were developed together</h2>
-            <p>
-                The repository structure and README both show that the project was not written against a fixed
-                off-the-shelf board. Hardware revisions were part of the work. The README lists several board
-                versions, ending in a stacked version 3.0 design, and explicitly notes that earlier revisions
-                were partly transitional and still contained issues to be fixed. That progression matters
-                because the firmware assumptions depend on the final board composition: display, touch,
-                STM32F405, power path, IMU, microphone, vibration motor, and USB-C are all part of the same
-                design target.
-            </p>
-            <figure class="project-media project-media--narrow">
-                <img :src="boardLayout" alt="ZeptoWatch PCB layout from a later hardware revision" />
-                <figcaption>Later PCB revision from the repository, showing the board was iterated during development.</figcaption>
-            </figure>
-            <p>
-                The board render is also worth keeping because it makes the packaging problem visible. This is
-                not firmware developed in isolation; the software platform was being built for a compact
-                wearable form factor with a constrained board area and a nontrivial peripheral set.
-            </p>
-            <figure class="project-media project-media--narrow">
-                <img :src="boardRender" alt="Rendered ZeptoWatch board model" />
-                <figcaption>Version 3.0 board render from the original project repository.</figcaption>
+            <figure class="project-media project-media--medium">
+                <img :src="gravityDemo" alt="Demonstration of the IMU-based physics example" />
+                <figcaption>The demonstration of the IMU-based physics example.</figcaption>
             </figure>
         </section>
 
         <section class="project-article__section">
-            <h2>What is technically strongest here</h2>
+            <h2>Limitations</h2>
             <p>
-                The strongest part of ZeptoWatch is the interface between firmware internals and user code. A
-                lot of embedded projects can demonstrate a display, a sensor, or an interpreter in isolation.
-                This one goes further and defines a working combination: file-based deployment, launcher
-                metadata, wrapped board APIs, LVGL bindings, and explicit RTOS-aware scripting conventions.
-            </p>
-            <p>
-                That is also where most of the technical risk sits. If any one of those pieces had been left
-                undefined, the project would have collapsed back into a collection of demos. Instead, the repo
-                shows a credible attempt to make the device extensible at runtime while still keeping the
-                system small enough to run on an STM32F405-based watch.
+                TODO.
             </p>
         </section>
     </div>
 </template>
-
-<style scoped>
-.zepto-watch-article strong {
-    color: var(--title);
-    font-weight: 600;
-}
-
-.project-media {
-    display: grid;
-    gap: 8px;
-    margin-top: 16px;
-}
-
-.project-media--narrow {
-    max-width: 760px;
-}
-
-.project-media img {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.56);
-}
-
-.project-media figcaption {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-}
-</style>

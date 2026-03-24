@@ -1,6 +1,6 @@
 {
     "title": "ZeptoWatch",
-    "subtitle": "An STM32-based touchscreen watch.",
+    "subtitle": "An STM32-based touchscreen watch with an application runtime",
     "time": "2022.10 - 2023.01",
     "groups": ["Embedded"],
     "status": "Completed",

@@ -66,10 +66,6 @@ import ee368Setup from './assets/ee368-setup.jpg'
         <img :src="ee346Demo" alt="EE346 mobile robot navigation demo with waypoint visiting and stopping" />
         <figcaption>EE346 demo clip: map-based navigation with interruption for target stopping.</figcaption>
       </figure>
-      <figure class="project-media project-media--medium">
-        <img :src="ee346Map" alt="EE346 map and navigation screenshot" />
-        <figcaption>Material used in the original portfolio notes for the ROS1 navigation task.</figcaption>
-      </figure>
     </section>
 
     <section class="project-article__section">
@@ -95,13 +91,9 @@ import ee368Setup from './assets/ee368-setup.jpg'
         That makes EE211 the most system-like of the three. It is where global planning, local control,
         perception, and arm execution are closest to being stitched into one ROS2 workflow.
       </p>
-      <figure class="project-media project-media--medium">
+      <figure class="project-media project-media--portrait">
         <img :src="ee211Demo" alt="EE211 ROS2 project demo with perception and manipulation" />
         <figcaption>EE211 demo clip: ROS2 navigation and marker-driven interaction around the task block.</figcaption>
-      </figure>
-      <figure class="project-media project-media--medium">
-        <img :src="ee211Stack" alt="EE211 ROS2 navigation and grasping project image" />
-        <figcaption>Material image used in the earlier project collection notes for the EE211 task.</figcaption>
       </figure>
     </section>
 
@@ -146,33 +138,3 @@ import ee368Setup from './assets/ee368-setup.jpg'
     </section>
   </div>
 </template>
-
-<style scoped>
-.robotics-coursework-article strong {
-  color: var(--title);
-  font-weight: 600;
-}
-
-.project-media {
-  display: grid;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.project-media--medium {
-  max-width: 760px;
-}
-
-.project-media img {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.56);
-}
-
-.project-media figcaption {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-</style>
