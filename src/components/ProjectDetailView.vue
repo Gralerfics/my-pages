@@ -25,6 +25,7 @@ const relatedProjects = computed(() =>
 )
 
 const pageRoot = ref(null)
+const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1280)
 const lightbox = ref(null)
 const lightboxImage = ref(null)
 const dragState = ref({
@@ -136,6 +137,46 @@ function setCurrentContrastMode(mode) {
         },
     }
 }
+
+const gallerySlots = computed(() => {
+    if (viewportWidth.value < 520) {
+        return 3
+    }
+    if (viewportWidth.value < 760) {
+        return 4
+    }
+    if (viewportWidth.value < 1080) {
+        return 5
+    }
+    return 7
+})
+
+const galleryWindow = computed(() => {
+    if (!lightbox.value) {
+        return { items: [], hasPrevHidden: false, hasNextHidden: false }
+    }
+
+    const items = lightbox.value.items
+    const slots = Math.min(gallerySlots.value, Math.max(1, items.length))
+    const half = Math.floor(slots / 2)
+    const start = lightbox.value.currentIndex - half
+
+    return {
+        items: Array.from({ length: slots }, (_, slotIndex) => {
+            const itemIndex = start + slotIndex
+            if (itemIndex < 0 || itemIndex >= items.length) {
+                return null
+            }
+
+            return {
+                ...items[itemIndex],
+                index: itemIndex,
+            }
+        }),
+        hasPrevHidden: start > 0,
+        hasNextHidden: start + slots < items.length,
+    }
+})
 
 function canGoPrev() {
     return Boolean(lightbox.value && lightbox.value.currentIndex > 0)
@@ -249,6 +290,10 @@ function handleKeydown(event) {
     }
 }
 
+function handleResize() {
+    viewportWidth.value = window.innerWidth
+}
+
 function handleLightboxWheel(event) {
     if (!lightbox.value || !lightboxImage.value) {
         return
@@ -334,8 +379,10 @@ onBeforeUnmount(() => {
 
 if (typeof window !== 'undefined') {
     window.addEventListener('keydown', handleKeydown)
+    window.addEventListener('resize', handleResize)
     onBeforeUnmount(() => {
         window.removeEventListener('keydown', handleKeydown)
+        window.removeEventListener('resize', handleResize)
     })
 }
 </script>
@@ -477,16 +524,33 @@ if (typeof window !== 'undefined') {
                             {{ getCurrentItem()?.caption }}
                         </p>
                     </div>
-                    <div v-if="lightbox.items.length > 1" class="image-lightbox__gallery">
+                    <div
+                        v-if="lightbox.items.length > 1"
+                        class="image-lightbox__gallery"
+                        :class="{
+                            'has-prev-hidden': galleryWindow.hasPrevHidden,
+                            'has-next-hidden': galleryWindow.hasNextHidden,
+                        }"
+                        :style="{ '--gallery-columns': galleryWindow.items.length }"
+                    >
                         <button
-                            v-for="(item, index) in lightbox.items"
-                            :key="item.id"
+                            v-for="(item, slotIndex) in galleryWindow.items"
+                            :key="item?.id ?? `placeholder-${slotIndex}`"
                             type="button"
                             class="image-lightbox__thumb"
-                            :class="{ 'is-active': index === lightbox.currentIndex }"
-                            @click.stop="jumpToImage(index)"
+                            :class="{
+                                'is-active': item?.index === lightbox.currentIndex,
+                                'is-placeholder': !item,
+                            }"
+                            :disabled="!item"
+                            @click.stop="item && jumpToImage(item.index)"
                         >
-                            <img :src="item.src" :alt="item.alt" draggable="false" />
+                            <img
+                                v-if="item"
+                                :src="item.src"
+                                :alt="item.alt"
+                                draggable="false"
+                            />
                         </button>
                     </div>
                 </div>

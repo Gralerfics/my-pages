@@ -1448,11 +1448,11 @@ a.education-course-list__main:hover {
 }
 
 .image-lightbox__gallery {
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
+  position: relative;
+  grid-template-columns: repeat(var(--gallery-columns, 1), minmax(0, 1fr));
   gap: 10px;
   align-items: center;
-  overflow-x: auto;
+  overflow: hidden;
   padding: 12px;
 }
 
@@ -1476,6 +1476,12 @@ a.education-course-list__main:hover {
     background-color 180ms ease;
 }
 
+.image-lightbox__thumb.is-placeholder {
+  opacity: 0;
+  cursor: default;
+  pointer-events: none;
+}
+
 .image-lightbox__thumb:hover {
   opacity: 0.82;
   transform: scale(0.95);
@@ -1493,6 +1499,28 @@ a.education-course-list__main:hover {
   aspect-ratio: 16 / 9;
   object-fit: cover;
   cursor: pointer;
+}
+
+.image-lightbox__gallery.has-prev-hidden::before,
+.image-lightbox__gallery.has-next-hidden::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  pointer-events: none;
+}
+
+.image-lightbox__gallery.has-prev-hidden::before {
+  left: 0;
+  border-radius: 14px 0 0 14px;
+  background: linear-gradient(90deg, rgba(8, 12, 18, 0.6), rgba(8, 12, 18, 0));
+}
+
+.image-lightbox__gallery.has-next-hidden::after {
+  right: 0;
+  border-radius: 0 14px 14px 0;
+  background: linear-gradient(270deg, rgba(8, 12, 18, 0.6), rgba(8, 12, 18, 0));
 }
 
 @media (max-width: 760px) {
