@@ -3,6 +3,22 @@ import ProjectEquation from '../../components/ProjectEquation.vue'
 import globalBenchmarkSummary from './assets/global-benchmark-summary.png'
 import localBenchmarkSummary from './assets/local-benchmark-summary.png'
 import mppiTrajectorySample from './assets/mppi-trajectory-sample.png'
+
+const ackermannEquation = String.raw`
+$ vec(dot(x), dot(y), dot(theta)) = vec(v cos(theta), v sin(theta), v / L tan(delta)) $
+`
+
+const pathCostEquation = String.raw`
+$ J = sum_(k=0)^(N-1) (w_p norm(p_k - p_k^*)^2 + w_u norm(u_k)^2 + w_c c(p_k)) + w_T norm(p_N - p_N^*)^2 $
+`
+
+const mppiEquation = String.raw`
+$ "RMSE-ATE" = sqrt(1 / N sum_(k=1)^N norm(p_u(k delta) - p(k delta))_2^2) $
+`
+
+const doorEquation = String.raw`
+$ J = sum_(k=0)^(N-1) (w_p norm(p_"ee" - p_"ee"^*)^2 + w_o "ToAngle"(R_"ee"^T R_"ee"^*)^2 + w_u norm(u_k)^2 + w_"xy" max(0, R^2 - norm(p_"ee,xy" - p_"xy")^2)) + w_T norm(p_N - p_N^*)^2 $
+`
 </script>
 
 <template>
@@ -25,7 +41,7 @@ import mppiTrajectorySample from './assets/mppi-trajectory-sample.png'
                 In the final setup, the global planner produced a collision-free reference path in the map, the local controller tracked that path under Ackermann kinematics, and a separate predictive controller was used when the task changed from navigation to manipulation. That separation let us benchmark the local planner properly, while still keeping a full demonstration that actually completed the task.
             </p>
             <p>
-                My main part in the collaboration was the simulation environment, the MPC / MPPI implementation, the door-opening controller, and part of the experiments and report writing. That is also why the predictive-control sections below are written from the implementation side rather than as a high-level summary.
+                This was a group project, not a solo build. According to the division recorded in the report, I was mainly responsible for the simulation environment, the MPC / MPPI controllers, the door-opening part of the system, and part of the experiments, analysis, and report writing. The global planners were mainly developed by the other group members.
             </p>
         </section>
 
@@ -48,107 +64,29 @@ import mppiTrajectorySample from './assets/mppi-trajectory-sample.png'
         <section class="project-article__section">
             <h2>Predictive local control</h2>
             <p>
-                For navigation, I implemented both MPC and MPPI on the same Ackermann state model. The state is the base pose <code>[x, y, theta]</code>, and the control is <code>[v, delta]</code>. The discrete update in code is the usual bicycle model:
+                For navigation, I implemented both MPC and MPPI on the same Ackermann state model. The state is the base pose <code>[x, y, theta]</code>, and the control is <code>[v, delta]</code>. In the report, the chassis dynamics are written in continuous form as the bicycle model:
             </p>
-            <ProjectEquation caption="Discrete Ackermann model used by both MPC and MPPI during path tracking.">
-                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-                    <mrow>
-                        <msub><mi>x</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub>
-                        <mo>=</mo>
-                        <msub><mi>x</mi><mi>k</mi></msub>
-                        <mo>+</mo>
-                        <msub><mi>v</mi><mi>k</mi></msub>
-                        <mi>cos</mi>
-                        <mo>(</mo><msub><mi>theta</mi><mi>k</mi></msub><mo>)</mo>
-                        <mi>dt</mi>
-                    </mrow>
-                    <mspace linebreak="newline" />
-                    <mrow>
-                        <msub><mi>y</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub>
-                        <mo>=</mo>
-                        <msub><mi>y</mi><mi>k</mi></msub>
-                        <mo>+</mo>
-                        <msub><mi>v</mi><mi>k</mi></msub>
-                        <mi>sin</mi>
-                        <mo>(</mo><msub><mi>theta</mi><mi>k</mi></msub><mo>)</mo>
-                        <mi>dt</mi>
-                    </mrow>
-                    <mspace linebreak="newline" />
-                    <mrow>
-                        <msub><mi>theta</mi><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msub>
-                        <mo>=</mo>
-                        <msub><mi>theta</mi><mi>k</mi></msub>
-                        <mo>+</mo>
-                        <mfrac>
-                            <msub><mi>v</mi><mi>k</mi></msub>
-                            <mi>L</mi>
-                        </mfrac>
-                        <mi>tan</mi>
-                        <mo>(</mo><msub><mi>delta</mi><mi>k</mi></msub><mo>)</mo>
-                        <mi>dt</mi>
-                    </mrow>
-                </math>
-            </ProjectEquation>
+            <ProjectEquation
+                :code="ackermannEquation"
+                :framed="false"
+                caption="Ackermann chassis model used throughout the planning and control stack."
+            />
             <p>
-                I kept the running cost aligned between the two controllers, so the comparison stayed meaningful. The local path-following cost in the implementation is built from the squared distance to the current path segment, a terminal penalty to the end of the local path, and a small control regularization term:
+                For local path tracking, the report defines a shared finite-horizon objective and uses it as the common benchmark target for both MPC and MPPI. The cost includes path-tracking error, control effort, a soft collision penalty, and a terminal term:
             </p>
-            <ProjectEquation caption="Path-tracking objective implemented in BasePathFollowingRunningCost.">
-                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-                    <mrow>
-                        <mi>J</mi>
-                        <mo>=</mo>
-                        <msub><mi>w</mi><mtext>path</mtext></msub>
-                        <mo>&#x2062;</mo>
-                        <msubsup><mo>&#x2225;</mo><mtext>proj</mtext><mn>2</mn></msubsup>
-                        <mo>+</mo>
-                        <msub><mi>w</mi><mtext>terminal</mtext></msub>
-                        <mo>&#x2062;</mo>
-                        <msubsup><mo>&#x2225;</mo><mtext>goal</mtext><mn>2</mn></msubsup>
-                        <mo>+</mo>
-                        <msub><mi>w</mi><mi>u</mi></msub>
-                        <mo>&#x2062;</mo>
-                        <msubsup><mo>&#x2225;</mo><mi>u</mi><mn>2</mn></msubsup>
-                    </mrow>
-                </math>
-            </ProjectEquation>
+            <ProjectEquation
+                :code="pathCostEquation"
+                :framed="false"
+                caption="Path-tracking objective in the report."
+            />
             <p>
-                On the MPPI side, I used the standard exponential weighting update. The sampled rollouts are evaluated under the same running cost, the minimum rollout cost is used as a baseline, and the control sequence is updated by the weighted average of rollout noise:
+                The benchmark metric reported later is the RMSE-ATE between the reference trajectory and the actual tracked trajectory. This is the quantity used in the report tables and scatter plot when comparing controller settings:
             </p>
-            <ProjectEquation caption="Weighting and control update in the MPPI implementation.">
-                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-                    <mrow>
-                        <mi>beta</mi><mo>=</mo><msub><mi>min</mi><mi>i</mi></msub><mo>(</mo><msub><mi>J</mi><mi>i</mi></msub><mo>)</mo>
-                    </mrow>
-                    <mspace linebreak="newline" />
-                    <mrow>
-                        <msub><mi>w</mi><mi>i</mi></msub>
-                        <mo>=</mo>
-                        <mfrac>
-                            <mi>exp</mi>
-                            <mo>(</mo>
-                            <mo>-</mo>
-                            <mfrac>
-                                <mrow><msub><mi>J</mi><mi>i</mi></msub><mo>-</mo><mi>beta</mi></mrow>
-                                <mi>lambda</mi>
-                            </mfrac>
-                            <mo>)</mo>
-                            <mrow><mo>&#x2211;</mo><mi>exp</mi><mo>(</mo><mo>-</mo><mfrac><mrow><msub><mi>J</mi><mi>j</mi></msub><mo>-</mo><mi>beta</mi></mrow><mi>lambda</mi></mfrac><mo>)</mo></mrow>
-                        </mfrac>
-                    </mrow>
-                    <mspace linebreak="newline" />
-                    <mrow>
-                        <mi mathvariant="bold">u</mi>
-                        <mo>&larr;</mo>
-                        <mi mathvariant="bold">u</mi>
-                        <mo>+</mo>
-                        <mrow>
-                            <mo>&#x2211;</mo>
-                            <msub><mi>w</mi><mi>i</mi></msub>
-                            <msub><mi mathvariant="bold">epsilon</mi><mi>i</mi></msub>
-                        </mrow>
-                    </mrow>
-                </math>
-            </ProjectEquation>
+            <ProjectEquation
+                :code="mppiEquation"
+                :framed="false"
+                caption="RMSE-ATE definition used in the local-planner benchmark."
+            />
             <p>
                 The point of implementing both controllers was not to claim that one dominates the other everywhere. The benchmark instead made the trade-off visible. MPC gave cleaner tracking when the horizon was short and the environment was not too adversarial, but the solve time rose quickly with horizon length. MPPI was much cheaper per step and much easier to keep stable at high success rate once the horizon was long enough, but it was more sensitive to rollout count and produced rougher tracking in some settings.
             </p>
@@ -175,38 +113,13 @@ import mppiTrajectorySample from './assets/mppi-trajectory-sample.png'
                 The door-opening stage is where the project stops being a plain navigation assignment. Once the base reaches the interaction area, the problem changes to whole-body predictive control: the arm has to reach the handle with the right orientation, while the base still has to move so that the arm does not over-stretch or enter an awkward configuration.
             </p>
             <p>
-                In the implementation, I used an extended state that combines base pose and the seven Panda joints. The running cost penalizes end-effector position error, end-effector orientation error, a small input regularization term, and an additional internal XY penalty to keep the end effector from entering the chassis body region. The code reflects this structure directly rather than hiding it behind a generic controller abstraction.
+                In the report, this stage is written as a unified predictive controller over the coupled chassis-arm state. The objective penalizes end-effector position error, end-effector orientation error through <code>ToAngle(R_ee^T R_ee^*)</code>, control effort, and an additional XY penalty that discourages the end effector from entering the projected chassis footprint.
             </p>
-            <ProjectEquation caption="Whole-body objective implemented in EndEffectorPoseRunningCost for the door task.">
-                <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-                    <mrow>
-                        <mi>J</mi>
-                        <mo>=</mo>
-                        <msub><mi>w</mi><mtext>ee-pos</mtext></msub>
-                        <mo>&#x2062;</mo>
-                        <msubsup><mo>&#x2225;</mo><mrow><msub><mi>p</mi><mtext>ee</mtext></msub><mo>-</mo><msub><mi>p</mi><mtext>goal</mtext></msub></mrow><mn>2</mn></msubsup>
-                        <mo>+</mo>
-                        <msub><mi>w</mi><mtext>ee-ori</mtext></msub>
-                        <mo>&#x2062;</mo>
-                        <msubsup><mo>&#x2225;</mo><mrow><msub><mi>R</mi><mtext>err</mtext></msub></mrow><mn>2</mn></msubsup>
-                    </mrow>
-                    <mspace linebreak="newline" />
-                    <mrow>
-                        <mo>+</mo>
-                        <msub><mi>w</mi><mtext>xy-int</mtext></msub>
-                        <mo>&#x2062;</mo>
-                        <msub><mi>c</mi><mtext>internal</mtext></msub>
-                        <mo>+</mo>
-                        <msub><mi>w</mi><mtext>terminal</mtext></msub>
-                        <mo>&#x2062;</mo>
-                        <msub><mi>c</mi><mtext>terminal</mtext></msub>
-                        <mo>+</mo>
-                        <msub><mi>w</mi><mi>u</mi></msub>
-                        <mo>&#x2062;</mo>
-                        <msubsup><mo>&#x2225;</mo><mi>u</mi><mn>2</mn></msubsup>
-                    </mrow>
-                </math>
-            </ProjectEquation>
+            <ProjectEquation
+                :code="doorEquation"
+                :framed="false"
+                caption="Unified predictive-control objective for the door-opening task."
+            />
             <p>
                 This stage is also where the non-holonomic constraint actually matters. If the controller only solves the arm pose, it is easy to drive the manipulator into an unreachable or badly conditioned posture. The predictive formulation instead lets the chassis and arm compensate for each other over the horizon, which is why the full demonstration can keep the grasp and continue the opening motion instead of stopping at first contact.
             </p>

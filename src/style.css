@@ -1529,17 +1529,41 @@ a.education-course-list__main:hover {
 }
 
 .project-equation__body {
-    padding: 16px 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 18px;
     border: 1px solid rgba(39, 54, 74, 0.12);
     border-radius: 10px;
-    background: rgba(248, 250, 252, 0.92);
+    background: rgba(250, 251, 253, 0.95);
     overflow-x: auto;
 }
 
-.project-equation__body math {
+.project-equation__body--plain {
+    padding: 2px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.project-equation__svg {
     display: block;
+    width: 100%;
+}
+
+.project-equation__svg svg {
+    display: block;
+    margin-inline: auto;
+    max-width: 100%;
+    height: auto;
     color: var(--title);
-    font-size: 1rem;
+}
+
+.project-equation__error {
+    margin: 0;
+    color: #9b2c2c;
+    font: 0.92rem/1.55 "Courier New", "SFMono-Regular", Consolas, monospace;
+    white-space: pre-wrap;
 }
 
 .project-equation__caption {

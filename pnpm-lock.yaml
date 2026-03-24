@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@myriaddreamin/typst-ts-renderer':
+        specifier: 0.7.0-rc2
+        version: 0.7.0-rc2
+      '@myriaddreamin/typst-ts-web-compiler':
+        specifier: 0.7.0-rc2
+        version: 0.7.0-rc2
+      '@myriaddreamin/typst.ts':
+        specifier: 0.7.0-rc2
+        version: 0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2)
       vue:
         specifier: ^3.5.30
         version: 3.5.30
@@ -49,6 +58,23 @@ packages:
 
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
+
+  '@myriaddreamin/typst-ts-renderer@0.7.0-rc2':
+    resolution: {integrity: sha512-god1tcb2YJDkQfA8gLGcAmykVGBpNKorqqDkXVy3InC18KRbsverJhlrHoONurNIU9JuIHoWjJ2D1ntpjPgzbA==}
+
+  '@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2':
+    resolution: {integrity: sha512-WFO/ecKUfeclld5uDxyjgpnIafKpp2LrS6T1vY+CHaSxCm099AneAQIYFg+OtX+NbFpJsLGCBFSw/qppJJmBAw==}
+
+  '@myriaddreamin/typst.ts@0.7.0-rc2':
+    resolution: {integrity: sha512-VM8JqsRcL3AEJ5cuPBn/YvnGTXK/BRPlxdGB2bR48Of/8OIGaPiunv2QfZBIMBBrtbTygUOtAY9BZvkS1AFqgA==}
+    peerDependencies:
+      '@myriaddreamin/typst-ts-renderer': ^0.7.0-rc2
+      '@myriaddreamin/typst-ts-web-compiler': ^0.7.0-rc2
+    peerDependenciesMeta:
+      '@myriaddreamin/typst-ts-renderer':
+        optional: true
+      '@myriaddreamin/typst-ts-web-compiler':
+        optional: true
 
   '@napi-rs/wasm-runtime@1.1.1':
     resolution: {integrity: sha512-p64ah1M1ld8xjWv3qbvFwHiFVWrq1yFvV4f7w+mzaqiR4IlSgkqhcRdHwsGgomwzBH51sRY4NEowLxnaBjcW/A==}
@@ -217,6 +243,9 @@ packages:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+
+  idb@7.1.1:
+    resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
 
   lightningcss-android-arm64@1.32.0:
     resolution: {integrity: sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg==}
@@ -407,6 +436,17 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
+  '@myriaddreamin/typst-ts-renderer@0.7.0-rc2': {}
+
+  '@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2': {}
+
+  '@myriaddreamin/typst.ts@0.7.0-rc2(@myriaddreamin/typst-ts-renderer@0.7.0-rc2)(@myriaddreamin/typst-ts-web-compiler@0.7.0-rc2)':
+    dependencies:
+      idb: 7.1.1
+    optionalDependencies:
+      '@myriaddreamin/typst-ts-renderer': 0.7.0-rc2
+      '@myriaddreamin/typst-ts-web-compiler': 0.7.0-rc2
+
   '@napi-rs/wasm-runtime@1.1.1':
     dependencies:
       '@emnapi/core': 1.9.1
@@ -546,6 +586,8 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  idb@7.1.1: {}
 
   lightningcss-android-arm64@1.32.0:
     optional: true
