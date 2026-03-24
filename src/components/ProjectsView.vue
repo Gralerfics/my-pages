@@ -109,10 +109,9 @@ const filteredProjects = computed(() => {
                                 </div>
                                 <div class="project-card__summary-wrap">
                                     <p class="project-card__summary">{{ project.intro }}</p>
-                                    <!--                  <span v-if="needsMoreInfoCue(project.intro)" class="project-card__more">-->
-                                    <span v-if="needsMoreInfoCue(project.intro)" class="project-card__more">
-                    More Info
-                  </span>
+                                    <span class="project-card__more">
+                                        More Info
+                                    </span>
                                 </div>
                             </div>
                         </button>

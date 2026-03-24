@@ -958,7 +958,7 @@ a.education-course-list__main:hover {
 
 .project-card__content {
     display: grid;
-    grid-template-columns: 180px minmax(0, 0.9fr) minmax(240px, 1fr) auto;
+    grid-template-columns: 180px minmax(0, 1.15fr) minmax(220px, 0.85fr) auto;
     gap: 20px;
     align-items: start;
     padding: 18px;
@@ -1007,6 +1007,11 @@ a.education-course-list__main:hover {
 .project-card__subtitle {
     margin-top: 8px;
     color: var(--title);
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 
 .project-card__summary {
