@@ -1,11 +1,11 @@
 {
-  "title": "FmcPGA",
-  "subtitle": "A VHDL voxel-style rendering pipeline on FPGA",
-  "time": "2023.09 - 2024.01",
-  "groups": ["Digital Design", "Embedded", "Graphics"],
-  "status": "Completed",
-  "repo": "https://github.com/Gralerfics/FmcPGA",
-  "intro": "A voxel renderer built directly in VHDL on FPGA, with real-time scene traversal, interaction, and VGA display.",
-  "tags": ["VHDL", "FPGA", "PS/2", "Ray Marching", "Pipelining"],
-  "priority": 850
+    "title": "FmcPGA",
+    "subtitle": "A VHDL voxel-style rendering pipeline on FPGA",
+    "time": "2023.09 - 2024.01",
+    "groups": ["Digital Design", "Embedded", "Graphics"],
+    "status": "Completed",
+    "repo": "https://github.com/Gralerfics/FmcPGA",
+    "intro": "A voxel renderer built directly in VHDL on FPGA, with real-time scene traversal, interaction, and VGA display.",
+    "tags": ["VHDL", "FPGA", "PS/2", "Ray Marching", "Pipelining"],
+    "priority": 850
 }

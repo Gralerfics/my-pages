@@ -65,7 +65,7 @@ import ProjectCodeBlock from "../../components/ProjectCodeBlock.vue";
         </section>
 
         <section class="project-article__section">
-            <h2>Project Overview</h2>
+            <h2>Project overview</h2>
             <p>
                 What I wanted here was not just another front end that prints HDL. The point was to build a workable middle layer for digital circuits, so that the circuit remains explicit and editable before code generation. That makes it possible to do structured reuse, automatic completion, timing analysis, and pipeline redistribution in one consistent flow.
             </p>

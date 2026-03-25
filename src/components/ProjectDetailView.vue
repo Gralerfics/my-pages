@@ -72,6 +72,15 @@ function normalizeArticleLinks() {
     }
 
     pageRoot.value.querySelectorAll('.section-body .project-article a[href]').forEach((link) => {
+        const href = link.getAttribute('href') || ''
+        const isInternalHashLink = href.startsWith('#/')
+
+        if (isInternalHashLink) {
+            link.removeAttribute('target')
+            link.removeAttribute('rel')
+            return
+        }
+
         link.setAttribute('target', '_blank')
         link.setAttribute('rel', 'noreferrer')
     })
