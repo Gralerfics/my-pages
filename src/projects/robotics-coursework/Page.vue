@@ -7,134 +7,85 @@ import ee368Setup from './assets/ee368-setup.jpg'
 </script>
 
 <template>
-  <div class="project-article robotics-coursework-article">
-    <section class="project-article__section">
-      <p class="detail-text">
-        <strong>Key points.</strong> This entry groups three separate robotics course projects rather
-        than one monolithic system. The useful part is the spread: ROS1 navigation and stopping around
-        uncertain landmarks, ROS2 navigation plus marker-based grasping, and camera-guided whiteboard
-        following on a Kinova arm.
-      </p>
-      <p class="detail-text">
-        <strong>Stack.</strong> ROS1 <code>move_base</code>, AMCL, occupancy maps, lidar-based target
-        detection, ROS2 Nav2 plugin development, custom A* and DWA implementations, ArUco perception,
-        TF-based arm-camera coordination, RealSense capture, and Cartesian PID control for visual
-        servoing.
-      </p>
-    </section>
+    <div class="project-article robotics-coursework-article">
+        <section class="project-article__section">
+            <p class="detail-text">
+                <strong>Features.</strong> This entry groups three robotics course projects that cover a coherent range: ROS1 mobile navigation with target stopping, ROS2 planning / control plus marker-based grasping, and camera-guided manipulator control for whiteboard following.
+            </p>
+            <p class="detail-text">
+                <strong>Stack.</strong> ROS1 <code>move_base</code>, AMCL, occupancy maps, lidar target detection, ROS2 Nav2 plugin development, custom A* and DWA implementations, ArUco perception, TF-based hand-eye coordination, RealSense capture, and PID-style Cartesian visual servoing.
+            </p>
+        </section>
 
-    <section class="project-article__section">
-      <h2>How this grouped project is organised</h2>
-      <p>
-        The three repositories were built for different courses, but they fit together as one portfolio
-        item because they cover a sensible robotics progression. The first project is mostly about
-        classical mobile-robot navigation in ROS1. The second moves to ROS2 and Nav2, then extends the
-        workflow to visual-marker localisation and arm interaction. The third shifts to manipulation
-        and camera-guided control, where the robot has to keep tracking a moving whiteboard instead of
-        solving a static navigation problem.
-      </p>
-      <p>
-        The local application materials and videos are useful here because the repositories themselves
-        are code-heavy and barely documented. I used those materials mainly to confirm what each task
-        was demonstrating, and then filled in the implementation details from the codebases.
-      </p>
-    </section>
+        <section class="project-article__section">
+            <h2>Why I keep these three together</h2>
+            <p>
+                I group these repositories together because they are not random coursework leftovers. They form a progression through the same theme: first get a mobile robot moving reliably in a mapped scene, then combine navigation with perception and interaction, and finally move into manipulation where the camera itself becomes part of the control loop.
+            </p>
+            <p>
+                That is also how I think about them technically. They are smaller than a full research project, but taken together they show repeated work on integrating perception and control instead of stopping at one isolated demo.
+            </p>
+        </section>
 
-    <section class="project-article__section">
-      <h2>EE346: waypoint navigation and stopping near uncertain poles</h2>
-      <p>
-        The ROS1 repository is not just a launch-file submission. The later lab code combines map-based
-        navigation and a second-stage stopping behaviour around target poles whose exact locations are
-        not known beforehand. In <code>lab7/scripts/visit.py</code>, the robot first drives through a
-        sequence of map-frame goals using <code>move_base</code> and AMCL, then keeps checking the
-        lidar scan for candidate poles while it moves.
-      </p>
-      <p>
-        What is technically interesting is the filtering logic. The script loads the map, computes a
-        chessboard-distance transform on occupied cells, and rejects scan returns that are too close to
-        the wall. That leaves isolated candidates more likely to be actual poles instead of clutter on
-        the map boundary. After repeated detections, it cancels the current navigation goal, switches
-        into a local parking controller, aligns with the pole, stops near it, and then resumes the
-        waypoint sequence.
-      </p>
-      <p>
-        So the project is not only "visit fixed waypoints". It is a layered behaviour: global
-        navigation handled by the ROS navigation stack, local detection from lidar, and a custom
-        short-range controller for the final stopping manoeuvre.
-      </p>
-      <figure class="project-media project-media--medium">
-        <img :src="ee346Demo" alt="EE346 mobile robot navigation demo with waypoint visiting and stopping" />
-        <figcaption>EE346 demo clip: map-based navigation with interruption for target stopping.</figcaption>
-      </figure>
-    </section>
+        <section class="project-article__section">
+            <h2>EE346: waypoint navigation plus stopping near uncertain poles</h2>
+            <p>
+                The ROS1 part starts from a standard map-based navigation setup, but the interesting bit is that it does not stop there. The robot first follows a sequence of global goals through <code>move_base</code> and AMCL, and then switches behavior when it detects the target poles that are only approximately known in advance.
+            </p>
+            <p>
+                The final stopping logic uses lidar filtering and map-aware rejection of wall-adjacent returns so that poles are less likely to be confused with clutter. Once the target is detected reliably enough, the robot interrupts the current global goal, performs a local alignment / stopping maneuver, and then resumes the waypoint sequence.
+            </p>
+            <div class="project-media-grid project-media-grid--two">
+                <figure class="project-media">
+                    <img :src="ee346Demo" alt="EE346 mobile robot navigation demo" />
+                    <figcaption>Waypoint navigation with interruption for target stopping.</figcaption>
+                </figure>
+                <figure class="project-media">
+                    <img :src="ee346Map" alt="EE346 occupancy map" />
+                    <figcaption>The task is still grounded in a mapped indoor scene rather than pure reactive motion.</figcaption>
+                </figure>
+            </div>
+        </section>
 
-    <section class="project-article__section">
-      <h2>EE211: ROS2 navigation plus marker-based grasping</h2>
-      <p>
-        The ROS2 repository is structurally richer. Besides the final grasp package, it also includes a
-        custom Nav2 planner plugin and controller plugin. The planner side contains an
-        <code>AStarPlanner</code> implementation that converts the costmap into an internal cost array,
-        runs potential propagation with an A*-style heuristic, and reconstructs the path by following
-        gradients back from start to goal. On the controller side there is a hand-written DWA-style
-        local controller that samples linear/angular velocity pairs, rolls trajectories forward, and
-        scores them by goal distance, speed preference, and obstacle proximity.
-      </p>
-      <p>
-        The manipulation task then adds another subsystem on top. The <code>grasp</code> package
-        combines ArUco-based perception, TF reading, and arm-side control logic. The top-level
-        <code>grasp.py</code> waits for the camera-to-arm transform to become available, then hands that
-        transform into an arm controller node. Under the same repository there is also a ROS2 ArUco
-        package and dedicated interfaces for grasp actions and queries, so the course work already had
-        the shape of a small multi-package system rather than one single script.
-      </p>
-      <p>
-        That makes EE211 the most system-like of the three. It is where global planning, local control,
-        perception, and arm execution are closest to being stitched into one ROS2 workflow.
-      </p>
-      <figure class="project-media project-media--portrait">
-        <img :src="ee211Demo" alt="EE211 ROS2 project demo with perception and manipulation" />
-        <figcaption>EE211 demo clip: ROS2 navigation and marker-driven interaction around the task block.</figcaption>
-      </figure>
-    </section>
+        <section class="project-article__section">
+            <h2>EE211: ROS2 navigation and marker-based grasping</h2>
+            <p>
+                The ROS2 repository is the most system-like of the three. It contains both a custom Nav2 planner / controller side and a perception-to-manipulation side. On the navigation path, I worked with a custom A*-style planner and a DWA-style local controller instead of only relying on stock components.
+            </p>
+            <p>
+                On top of that, the project adds ArUco-based perception and a grasp workflow that depends on TF alignment between the camera and the arm. That combination is what makes this course project more interesting than a simple planner plugin assignment: path planning, local control, perception, and arm execution are all beginning to be stitched into one ROS2 pipeline.
+            </p>
+            <div class="project-media-grid project-media-grid--two">
+                <figure class="project-media project-media--portrait">
+                    <img :src="ee211Demo" alt="EE211 ROS2 demo" />
+                    <figcaption>The task extends navigation into marker-driven interaction around the target object.</figcaption>
+                </figure>
+                <figure class="project-media">
+                    <img :src="ee211Stack" alt="EE211 project stack illustration" />
+                    <figcaption>Planning, control, perception, and grasping are already organized as a multi-package ROS2 workflow.</figcaption>
+                </figure>
+            </div>
+        </section>
 
-    <section class="project-article__section">
-      <h2>EE368: whiteboard following and drawing with visual servoing</h2>
-      <p>
-        The EE368 project is the most manipulation-heavy of the three. The Python entry
-        <code>py/main.py</code> sets up a Kinova Gen3 Lite arm, a camera, an ArUco detector, and two
-        PID controllers. The code explicitly uses hand-eye calibration data, recovers the board marker
-        pose relative to the end effector, transforms the target into the hand frame, and then commands
-        Cartesian twist motion so that the tool follows the board while keeping a suitable orientation.
-      </p>
-      <p>
-        This is not just marker detection or just arm scripting. The control loop mixes pose
-        estimation, frame transformation, velocity feedback, and continuous command updates. The
-        position controller drives the tool towards a target point relative to the marker, while a
-        second controller uses marker orientation information to keep the end-effector aligned with the
-        whiteboard surface. That is a much closer fit to visual servoing than to a fixed pick-and-place
-        demo.
-      </p>
-      <p>
-        There is no polished write-up in the repository, but the code is clear enough about the
-        intended behaviour: track the board, maintain relative pose, and treat the marker as the moving
-        reference for writing motions.
-      </p>
-      <figure class="project-media project-media--medium">
-        <img :src="ee368Setup" alt="EE368 robotic motion and control setup image" />
-        <figcaption>Course material image for the whiteboard-following manipulator project.</figcaption>
-      </figure>
-    </section>
+        <section class="project-article__section">
+            <h2>EE368: visual servoing for whiteboard following</h2>
+            <p>
+                The third project shifts away from navigation and into manipulation. Here the main problem is not reaching a fixed pose once, but continuously tracking a whiteboard and keeping the end effector aligned with it while the reference is estimated from camera observations.
+            </p>
+            <p>
+                The control loop combines camera input, marker pose estimation, hand-eye calibration, frame transformation, and PID-like Cartesian control. In other words, the camera is not only a detector; it is part of the feedback path that keeps the arm aligned with the moving task frame.
+            </p>
+            <figure class="project-media project-media--medium">
+                <img :src="ee368Setup" alt="EE368 manipulator setup" />
+                <figcaption>The visual-servoing project uses camera feedback as part of the manipulator control loop.</figcaption>
+            </figure>
+        </section>
 
-    <section class="project-article__section">
-      <h2>Why I keep these three together</h2>
-      <p>
-        I would not group unrelated coursework just to increase project count. These three belong
-        together because they show a coherent robotics profile: map-based mobile navigation, local
-        sensing and target interaction, then camera-driven manipulation. They are still course projects,
-        so each one has the usual scope limits, but together they show repeated work on the same theme:
-        perception and control loops that have to survive integration with actual robotics software and
-        hardware stacks.
-      </p>
-    </section>
-  </div>
+        <section class="project-article__section">
+            <h2>What these projects show together</h2>
+            <p>
+                None of these repositories alone is meant to be a flagship system. The value is in the continuity across them: repeated work on navigation, local control, perception, and robot interaction, with each project pushing the integration point a little further. That is why I keep them as one grouped entry rather than flattening them into unrelated coursework bullets.
+            </p>
+        </section>
+    </div>
 </template>
