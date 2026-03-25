@@ -1,11 +1,11 @@
 {
-  "title": "Teach-and-Repeat Shuttle Drive",
-  "subtitle": "An autonomous shuttle system based on demonstrated routes",
-  "time": "2024.09 - Present",
-  "groups": ["Robotics"],
-  "status": "Temporarily Private",
-  "repo": "https://github.com/Gralerfics/pf-drive",
-  "intro": "An Ackermann-platform driving project built on a bio-inspired teach-and-repeat baseline, with emphasis on stable route repetition.",
-  "tags": ["Robotics", "Autonomous Driving", "Control", "Perception"],
-  "priority": 750
+    "title": "Teach-and-Repeat Driving System",
+    "subtitle": "An autonomous teach-and-repeat driving system in simulation",
+    "time": "2024.01 - 2024.05",
+    "groups": ["Robotics"],
+    "status": "Completed",
+    "repo": "https://github.com/Gralerfics/pf-drive",
+    "intro": "An Ackermann-platform driving project built on a teach-and-repeat baseline, with emphasis on stable route repetition.",
+    "tags": ["Robotics", "Autonomous Driving", "Control", "Perception"],
+    "priority": 750
 }

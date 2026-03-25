@@ -1,6 +1,5 @@
 <script setup>
-import boardVer11 from './assets/ver-1-1.png'
-import boardVer20 from './assets/ver-2-0.jpg'
+import sdrSharp from './assets/sdrsharp.png'
 </script>
 
 <template>
@@ -39,16 +38,10 @@ import boardVer20 from './assets/ver-2-0.jpg'
             <p>
                 The two public board images in the repository are useful because they show the project as an iteration, not a one-shot success. The early board and the later board are visibly related, but the later one is the result of design correction and bring-up experience rather than a cosmetic revision.
             </p>
-            <div class="project-media-grid project-media-grid--two">
-                <figure class="project-media">
-                    <img :src="boardVer11" alt="RTL-SDR board version 1.1" />
-                    <figcaption>Version 1.1 of the board during the hardware iteration process.</figcaption>
-                </figure>
-                <figure class="project-media">
-                    <img :src="boardVer20" alt="RTL-SDR board version 2.0" />
-                    <figcaption>Version 2.0 after the major corrections in the design and debugging cycle.</figcaption>
-                </figure>
-            </div>
+            <figure class="project-media project-media--small">
+                <img :src="sdrSharp" alt="TODO" />
+                <figcaption>TODO.</figcaption>
+            </figure>
             <p>
                 That hardware iteration is the part I care about most on this page. With a board like this, the interesting questions are usually not “can I route the nets” but “what did I misunderstand in the chip choice, support circuitry, or bring-up assumptions, and how did I narrow that down”.
             </p>
