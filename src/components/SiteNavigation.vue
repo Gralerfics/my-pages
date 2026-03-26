@@ -11,7 +11,7 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    realName: {
+    comment: {
         type: String,
         required: true,
     },
@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
                     <span class="site-header__mark">G</span>
                     <div>
                         <p class="site-header__name">{{ handle }}</p>
-                        <p class="site-header__meta">{{ realName }}</p>
+                        <p class="site-header__meta">{{ comment }}</p>
                     </div>
                 </div>
 

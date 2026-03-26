@@ -2,10 +2,13 @@ export const localizedContent = {
     en: {
         profile: {
             handle: 'Gralerfics',
-            realName: 'Zhuoyang Wang',
+            realName: 'Zhuoyang (Julian) Wang',
             title: 'Robotics / Signal Processing / Electronic Engineering',
             location: 'Delft, Netherlands',
-            email: 'z.wang-107@student.tudelft.nl / glverfer@outlook.com',
+            emails: [
+                'z.wang-107@student.tudelft.nl',
+                'glverfer@outlook.com'
+            ],
             github: 'https://github.com/Gralerfics',
             intro: 'An engineering-oriented Master student working across robotics, signal processing, digital design and embedded systems.',
             statement:
@@ -95,6 +98,11 @@ export const localizedContent = {
                         },
                     ],
                 },
+                // {
+                //     time: '2018 - 2021',
+                //     title: 'High School Diploma',
+                //     organization: 'Changzhou Senior High School of Jiangsu Province',
+                // },
             ],
             skills: [
                 { title: 'Programming', detail: 'C, Python, C++, VHDL, JavaScript, etc.' },
@@ -103,8 +111,9 @@ export const localizedContent = {
                 { title: 'Other', detail: 'Adobe Illustrator, SolidWorks.' },
             ],
             honors: [
-                { title: 'Junior Embedded System Design Engineer', detail: 'awarded by Chinese Institute of Electronics (CIE)' },
                 { title: 'National First Prize', detail: '2024 National (China) College Embedded Chip and System Design Competition, Application Track' },
+                { title: 'Junior Embedded System Design Engineer', detail: 'awarded by Chinese Institute of Electronics (CIE)' },
+                { title: 'Second Prize', detail: '2021 Asia and Pacific Mathematical Contest in Modeling' },
             ],
         },
     },
@@ -114,7 +123,7 @@ export const localizedContent = {
             realName: '王卓扬',
             title: '机器人 / 信号处理 / 电子工程',
             location: '代尔夫特，荷兰',
-            email: 'z.wang-107@student.tudelft.nl / glverfer@outlook.com',
+            emails: ['z.wang-107@student.tudelft.nl', 'glverfer@outlook.com'],
             github: 'https://github.com/Gralerfics',
             intro: '对机器人、信号处理、数字设计与嵌入式系统感兴趣的工程导向开发者。',
             statement: '欢迎浏览个人简历查看详情。',
@@ -202,6 +211,11 @@ export const localizedContent = {
                         },
                     ],
                 },
+                // {
+                //     time: '2018 - 2021',
+                //     title: '高中学位',
+                //     organization: '江苏省常州高级中学',
+                // },
             ],
             skills: [
                 { title: '程序设计', detail: 'C、Python、C++、VHDL、JavaScript 等。' },
@@ -210,8 +224,9 @@ export const localizedContent = {
                 { title: '其他', detail: 'Adobe Illustrator、SolidWorks 等。' },
             ],
             honors: [
-                { title: '初级嵌入式系统设计工程师', detail: '中国电子学会（CIE）认证' },
                 { title: '全国一等奖', detail: '2024 年全国大学生嵌入式芯片与系统设计竞赛（应用赛道）' },
+                { title: '初级嵌入式系统设计工程师', detail: '中国电子学会（CIE）认证' },
+                { title: '二等奖', detail: '2021 年亚太地区大学生数学建模竞赛' },
             ],
         },
     },

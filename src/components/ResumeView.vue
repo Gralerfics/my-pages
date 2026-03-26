@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from '../i18n/useI18n'
 
 const toLines = (detail) => (Array.isArray(detail) ? detail : [detail])
@@ -32,7 +32,7 @@ const toggleEducation = (entryKey) => {
         : [...openEducationEntries.value, entryKey]
 }
 
-defineProps({
+const props = defineProps({
     profile: {
         type: Object,
         required: true,
@@ -45,6 +45,18 @@ defineProps({
 
 const emit = defineEmits(['open-projects'])
 const { t } = useI18n()
+
+const profileEmails = computed(() => {
+    if (Array.isArray(props.profile.emails) && props.profile.emails.length) {
+        return props.profile.emails
+    }
+
+    if (typeof props.profile.email === 'string' && props.profile.email.trim()) {
+        return props.profile.email.split('/').map((entry) => entry.trim()).filter(Boolean)
+    }
+
+    return []
+})
 </script>
 
 <template>
@@ -54,7 +66,24 @@ const { t } = useI18n()
                 <p class="eyebrow">{{ t('resume.eyebrow') }}</p>
                 <h1>{{ profile.realName }}</h1>
                 <p class="resume-hero__title">{{ profile.title }}</p>
-                <p class="resume-hero__contact">{{ profile.email }}</p>
+                <p class="resume-hero__contact">
+                    <span class="resume-hero__contact-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5v9A1.5 1.5 0 0 1 18.5 18h-13A1.5 1.5 0 0 1 4 16.5v-9Zm1.2-.3 6.34 4.9a.75.75 0 0 0 .92 0l6.34-4.9"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.7"
+                            />
+                        </svg>
+                    </span>
+                    <template v-for="(email, index) in profileEmails" :key="email">
+                        <a :href="`mailto:${email}`">{{ email }}</a>
+                        <span v-if="index < profileEmails.length - 1"> / </span>
+                    </template>
+                </p>
             </div>
         </section>
 

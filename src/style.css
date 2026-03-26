@@ -1273,7 +1273,7 @@ a.education-course-list__main:hover {
 }
 
 .resume-hero {
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: end;
 }
 
@@ -1285,6 +1285,38 @@ a.education-course-list__main:hover {
 .resume-hero__contact,
 .resume-entry__org {
     color: var(--text-muted);
+}
+
+.resume-hero__contact {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.resume-hero__contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    color: var(--accent);
+    flex: 0 0 auto;
+}
+
+.resume-hero__contact-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.resume-hero__contact a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.resume-hero__contact a:hover {
+    color: var(--title);
+    text-decoration: underline;
 }
 
 .resume-prose {
