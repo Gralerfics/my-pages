@@ -50,6 +50,17 @@ const swipeState = ref({
     moved: false,
     suppressClick: false,
 })
+const pinchState = ref({
+    active: false,
+    startDistance: 0,
+    startScale: 1,
+    startOffsetX: 0,
+    startOffsetY: 0,
+    startCenterX: 0,
+    startCenterY: 0,
+    moved: false,
+})
+const activeTouchPoints = new Map()
 let mediaGridNormalizeFrame = 0
 
 function collectGalleryItems() {
@@ -225,6 +236,108 @@ function setCurrentViewState(nextState) {
     }
 }
 
+function getImageRelativePointer(clientX, clientY) {
+    if (!lightboxImage.value) {
+        return { x: 0, y: 0 }
+    }
+
+    const rect = lightboxImage.value.getBoundingClientRect()
+    return {
+        x: clientX - rect.left - rect.width / 2,
+        y: clientY - rect.top - rect.height / 2,
+    }
+}
+
+function getScaledViewState(baseState, nextScale, clientX, clientY) {
+    const scale = Math.min(4, Math.max(0.2, Number(nextScale.toFixed(2))))
+    if (scale <= 1) {
+        return { scale, offsetX: 0, offsetY: 0 }
+    }
+
+    const pointer = getImageRelativePointer(clientX, clientY)
+    const scaleRatio = scale / baseState.scale
+
+    return {
+        scale,
+        offsetX: baseState.offsetX - pointer.x * (scaleRatio - 1),
+        offsetY: baseState.offsetY - pointer.y * (scaleRatio - 1),
+    }
+}
+
+function getTouchDistance(firstPoint, secondPoint) {
+    return Math.hypot(secondPoint.clientX - firstPoint.clientX, secondPoint.clientY - firstPoint.clientY)
+}
+
+function getTouchCenter(firstPoint, secondPoint) {
+    return {
+        x: (firstPoint.clientX + secondPoint.clientX) / 2,
+        y: (firstPoint.clientY + secondPoint.clientY) / 2,
+    }
+}
+
+function startPinchGesture() {
+    if (activeTouchPoints.size < 2) {
+        return
+    }
+
+    const [firstPoint, secondPoint] = Array.from(activeTouchPoints.values()).slice(0, 2)
+    const currentViewState = getCurrentViewState()
+    if (!currentViewState) {
+        return
+    }
+
+    const center = getTouchCenter(firstPoint, secondPoint)
+    dragState.value.active = false
+    swipeState.value.tracking = false
+    pinchState.value = {
+        active: true,
+        startDistance: getTouchDistance(firstPoint, secondPoint),
+        startScale: currentViewState.scale,
+        startOffsetX: currentViewState.offsetX,
+        startOffsetY: currentViewState.offsetY,
+        startCenterX: center.x,
+        startCenterY: center.y,
+        moved: false,
+    }
+}
+
+function updatePinchGesture() {
+    if (!pinchState.value.active || activeTouchPoints.size < 2) {
+        return
+    }
+
+    const [firstPoint, secondPoint] = Array.from(activeTouchPoints.values()).slice(0, 2)
+    const currentDistance = getTouchDistance(firstPoint, secondPoint)
+    if (!currentDistance || !pinchState.value.startDistance) {
+        return
+    }
+
+    const center = getTouchCenter(firstPoint, secondPoint)
+    const nextScale = pinchState.value.startScale * (currentDistance / pinchState.value.startDistance)
+    const scaledState = getScaledViewState(
+        {
+            scale: pinchState.value.startScale,
+            offsetX: pinchState.value.startOffsetX,
+            offsetY: pinchState.value.startOffsetY,
+        },
+        nextScale,
+        center.x,
+        center.y,
+    )
+
+    setCurrentViewState({
+        ...scaledState,
+        offsetX: scaledState.offsetX + (center.x - pinchState.value.startCenterX),
+        offsetY: scaledState.offsetY + (center.y - pinchState.value.startCenterY),
+    })
+
+    pinchState.value.moved =
+        pinchState.value.moved ||
+        Math.abs(currentDistance - pinchState.value.startDistance) > 4 ||
+        Math.abs(center.x - pinchState.value.startCenterX) > 4 ||
+        Math.abs(center.y - pinchState.value.startCenterY) > 4
+}
+
 function resetGestureState() {
     dragState.value = {
         active: false,
@@ -243,6 +356,17 @@ function resetGestureState() {
         moved: false,
         suppressClick: false,
     }
+    pinchState.value = {
+        active: false,
+        startDistance: 0,
+        startScale: 1,
+        startOffsetX: 0,
+        startOffsetY: 0,
+        startCenterX: 0,
+        startCenterY: 0,
+        moved: false,
+    }
+    activeTouchPoints.clear()
 }
 
 function startSettleAnimation(initialOffsetX) {
@@ -454,20 +578,9 @@ function handleLightboxWheel(event) {
 
     event.preventDefault()
 
-    const rect = lightboxImage.value.getBoundingClientRect()
     const delta = event.deltaY < 0 ? 0.16 : -0.16
     const currentViewState = getCurrentViewState()
-    const prevScale = currentViewState.scale
-    const nextScale = Math.min(4, Math.max(0.2, Number((prevScale + delta).toFixed(2))))
-    const pointerX = event.clientX - rect.left - rect.width / 2
-    const pointerY = event.clientY - rect.top - rect.height / 2
-    const scaleRatio = nextScale / prevScale
-
-    setCurrentViewState({
-        scale: nextScale,
-        offsetX: nextScale <= 1 ? 0 : currentViewState.offsetX - pointerX * (scaleRatio - 1),
-        offsetY: nextScale <= 1 ? 0 : currentViewState.offsetY - pointerY * (scaleRatio - 1),
-    })
+    setCurrentViewState(getScaledViewState(currentViewState, currentViewState.scale + delta, event.clientX, event.clientY))
 }
 
 function handleLightboxPointerDown(event) {
@@ -482,6 +595,18 @@ function handleLightboxPointerDown(event) {
     if (!event.target.closest('.image-lightbox__image')) {
         closeLightbox()
         return
+    }
+
+    if (event.pointerType === 'touch') {
+        activeTouchPoints.set(event.pointerId, {
+            clientX: event.clientX,
+            clientY: event.clientY,
+        })
+
+        if (activeTouchPoints.size === 2) {
+            startPinchGesture()
+            return
+        }
     }
 
     const currentViewState = getCurrentViewState()
@@ -510,6 +635,19 @@ function handleLightboxPointerDown(event) {
 }
 
 function handleLightboxPointerMove(event) {
+    if (event.pointerType === 'touch' && activeTouchPoints.has(event.pointerId)) {
+        activeTouchPoints.set(event.pointerId, {
+            clientX: event.clientX,
+            clientY: event.clientY,
+        })
+
+        if (activeTouchPoints.size >= 2) {
+            event.preventDefault()
+            updatePinchGesture()
+            return
+        }
+    }
+
     if (dragState.value.active) {
         event.preventDefault()
 
@@ -568,6 +706,21 @@ function handleLightboxImageClick() {
 }
 
 function endLightboxDrag(event) {
+    if (event?.pointerType === 'touch' && activeTouchPoints.has(event.pointerId)) {
+        activeTouchPoints.delete(event.pointerId)
+
+        if (pinchState.value.active) {
+            suppressLightboxClick.value = suppressLightboxClick.value || pinchState.value.moved
+
+            if (activeTouchPoints.size >= 2) {
+                startPinchGesture()
+            } else {
+                pinchState.value.active = false
+            }
+            return
+        }
+    }
+
     if (dragState.value.active && dragState.value.moved) {
         suppressLightboxClick.value = true
     }
