@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 const STORAGE_KEY = 'preferred-locale'
 
 export const localeOptions = [
-    { code: 'en', flag: '🇺🇸', label: 'English' },
+  { code: 'en', flag: '🇬🇧', label: 'English' },
     { code: 'zh', flag: '🇨🇳', label: '中文' },
 ]
 

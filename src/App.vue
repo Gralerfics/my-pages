@@ -73,7 +73,7 @@ watchEffect(() => {
 
         <SiteNavigation
             :active-view="routeName"
-            :projects-label="routeName === 'project' ? currentProject.title : t('nav.projects')"
+            :projects-label="t('nav.projects')"
             :handle="profile.handle"
             :real-name="profile.realName"
             :github-href="profile.github"
