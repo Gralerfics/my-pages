@@ -1,10 +1,11 @@
 <script setup>
-import { computed, watchEffect } from 'vue'
+import { computed, nextTick, watch, watchEffect } from 'vue'
 import HomeView from './components/HomeView.vue'
 import ProjectDetailView from './components/ProjectDetailView.vue'
 import ProjectsView from './components/ProjectsView.vue'
 import ResumeView from './components/ResumeView.vue'
 import SiteNavigation from './components/SiteNavigation.vue'
+import { trackPageView } from './analytics'
 import { useHashRoute } from './composables/useHashRoute'
 import { localizedContent } from './content/localizedContent'
 import { projectConfig } from './content/projectConfig'
@@ -65,6 +66,19 @@ watchEffect(() => {
 
     document.title = titles[routeName.value]
 })
+
+watch(
+    [routeName, routeSlug],
+    async () => {
+        await nextTick()
+        trackPageView({
+            pageTitle: document.title,
+            pagePath: `${window.location.pathname}${window.location.hash}`,
+            pageLocation: window.location.href,
+        })
+    },
+    { immediate: true },
+)
 </script>
 
 <template>
