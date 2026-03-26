@@ -167,7 +167,9 @@ const profileEmails = computed(() => {
                                                         >
                                                             {{ course.code }}
                                                         </span>
-                                                        <span>{{ typeof course === 'string' ? course : course.name }}</span>
+                                                        <span class="education-course-list__name">
+                                                            {{ typeof course === 'string' ? course : course.name }}
+                                                        </span>
                                                     </component>
                                                     <span v-if="typeof course !== 'string' && course.grade" class="education-course-list__grade">
                                                         {{ course.grade }}

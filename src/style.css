@@ -910,18 +910,22 @@ h3 {
 }
 
 .education-course-list__item {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 18px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 8px 18px;
 }
 
 .education-course-list__main {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
     gap: 10px;
     min-width: 0;
+}
+
+.education-course-list__main > * {
+    align-self: start;
 }
 
 a.education-course-list__main {
@@ -943,6 +947,7 @@ a.education-course-list__main:hover {
     font-family: var(--font-mono);
     font-size: 0.82rem;
     letter-spacing: 0.06em;
+    align-self: start;
 }
 
 .education-course-list__code--featured {
@@ -951,11 +956,22 @@ a.education-course-list__main:hover {
     letter-spacing: 0.08em;
 }
 
+.education-course-list__name {
+    display: block;
+    min-width: 0;
+    align-self: start;
+    line-height: 1.32;
+    transform: translateY(-0.1em);
+}
+
 .education-course-list__grade {
     flex: none;
     color: var(--title);
     font-family: var(--font-mono);
     font-size: 0.86rem;
+    justify-self: end;
+    text-align: right;
+    align-self: start;
 }
 
 .education-panel__notes {
@@ -2083,23 +2099,6 @@ a.education-course-list__main:hover {
         gap: 8px 20px;
     }
 
-    .education-course-list__item {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: start;
-        gap: 8px 18px;
-    }
-
-    .education-course-list__main {
-        min-width: 0;
-        justify-self: stretch;
-    }
-
-    .education-course-list__grade {
-        justify-self: end;
-        text-align: right;
-    }
-
     .contact-strip__links {
         grid-template-columns: 1fr;
     }
@@ -2239,13 +2238,11 @@ a.education-course-list__main:hover {
     }
 
     .education-course-list__item {
-        grid-template-columns: 1fr;
-        gap: 8px;
+        gap: 8px 12px;
     }
 
-    .education-course-list__grade {
-        justify-self: start;
-        text-align: left;
+    .education-course-list__main {
+        gap: 8px;
     }
 }
 
