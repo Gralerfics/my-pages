@@ -48,7 +48,7 @@ const messages = {
         projects: {
             eyebrow: 'Projects',
             title: 'Project index',
-            intro: 'A list of selected work across my various interests.',
+            intro: 'A list of selected work across various directions.',
             browseEyebrow: 'Browse',
             filterTitle: 'Filter and search',
             groupsAria: 'Project groups',

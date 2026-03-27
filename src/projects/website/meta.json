@@ -5,7 +5,7 @@
     "groups": ["Web"],
     "status": "Ongoing",
     "repo": "https://github.com/Gralerfics/my-work-collection",
-    "intro": "A small Vue3 and Vite project for presenting my work which is mostly completed by AI.",
-    "tags": ["Vue3", "Vite", "Frontend", "Generative AI"],
+    "intro": "A small Vue3 and Vite project for presenting my work.",
+    "tags": ["Vue3", "Vite", "Frontend"],
     "priority": 0
 }
