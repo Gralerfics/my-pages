@@ -892,7 +892,7 @@ if (typeof window !== 'undefined') {
             </div>
             <div class="section-body" @click="handleImageClick">
                 <component :is="currentProject.pageComponent" />
-                <p class="project-article__ending" aria-hidden="true">*</p>
+                <p class="project-article__ending" aria-hidden="true">§</p>
             </div>
         </section>
 
