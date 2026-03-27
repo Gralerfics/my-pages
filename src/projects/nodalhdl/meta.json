@@ -1,0 +1,23 @@
+{
+    "title": "NodalHDL",
+    "subtitle": {
+        "en": "A Python-embedded digital circuit and HDL generation toolchain",
+        "zh": "一套嵌入 Python 工作流的数字电路与 HDL 生成工具链"
+    },
+    "time": "2025.01 - 2025.05",
+    "groups": ["Digital Design", "Graphics"],
+    "status": {
+        "en": "To be improved",
+        "zh": "待继续完善"
+    },
+    "repo": "https://github.com/Gralerfics/nodalhdl",
+    "intro": {
+        "en": "A set of pipeline digital circuit design tools tightly embedded in the Python workflow, supporting automatic pipelining, combinatorial logic high-level synthesis and other features.",
+        "zh": "一套紧密嵌入 Python 工作流的流水数字电路设计工具，支持自动流水化、组合逻辑高层综合等能力。"
+    },
+    "tags": {
+        "en": ["HDL", "FPGA", "Python", "HLS", "Toolchain"],
+        "zh": ["HDL", "FPGA", "Python", "HLS", "工具链"]
+    },
+    "priority": 1000
+}
