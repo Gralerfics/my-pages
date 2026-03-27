@@ -24,7 +24,7 @@ import LocalizedContent from '../../components/LocalizedContent.vue'
                     <strong>Features.</strong> This project is a set of pipeline digital circuit design tools tightly embedded in the Python workflow, supporting automatic pipelining, combinatorial logic high-level synthesis and other features, and equipped with "visual but not yet editor" and other auxiliary tools.
                 </template>
                 <template #zh>
-                    <strong>Features.</strong> 这个项目是一套紧密嵌入 Python 工作流的流水数字电路设计工具，支持自动流水化、组合逻辑高层综合等能力，并配有可视化编辑器等辅助工具。
+                    <strong>项目特性 - </strong> 这个项目是一套紧密嵌入 Python 工作流的流水数字电路设计工具，支持自动流水化、组合逻辑高层综合等能力，并配有可视化编辑器等辅助工具。
                 </template>
             </LocalizedContent>
             <LocalizedContent tag="p" class="detail-text">
@@ -32,7 +32,7 @@ import LocalizedContent from '../../components/LocalizedContent.vue'
                     <strong>Stack.</strong> Python 3.12, custom signal and type system, structural IR around <code>Structure</code>, <code>Node</code> and <code>Net</code>, VHDL / Verilog generation, static timing analysis (Vivado batch-mode), retiming, auto-pipelining, and Python-side behavioral construction for combinational datapaths.
                 </template>
                 <template #zh>
-                    <strong>Stack.</strong> Python 3.12、自定义信号与类型系统、围绕 <code>Structure</code> / <code>Node</code> / <code>Net</code> 的结构化中间表示、HDL / Verilog 生成、静态时序分析（借助 Vivado）、重定时（retiming）、自动流水化，以及面向组合数据通路的 Python 级行为描述。
+                    <strong>相关技术 - </strong> Python 3.12、自定义信号与类型系统、围绕 <code>Structure</code> / <code>Node</code> / <code>Net</code> 的结构化中间表示、HDL / Verilog 生成、静态时序分析（借助 Vivado）、重定时（retiming）、自动流水化，以及面向组合数据通路的 Python 级行为描述。
                 </template>
             </LocalizedContent>
         </section>

@@ -478,6 +478,14 @@ h1 {
     letter-spacing: -0.045em;
 }
 
+html[lang="zh-CN"] .project-hero h1 {
+    font-family: var(--font-sans);
+    font-size: clamp(2.15rem, 5vw, 3.4rem);
+    line-height: 1.18;
+    letter-spacing: 0.01em;
+    font-weight: 600;
+}
+
 h2 {
     font-size: clamp(1.5rem, 2.5vw, 2.1rem);
     line-height: 1.08;
@@ -504,6 +512,21 @@ h3 {
     font-size: 0.86rem;
     font-weight: 500;
     line-height: 1.45;
+}
+
+html[lang="zh-CN"] .project-hero__subtitle {
+    font-family: var(--font-sans);
+    font-weight: 550;
+    line-height: 1.38;
+    letter-spacing: 0.01em;
+}
+
+html[lang="zh-CN"] .hero-panel__title,
+html[lang="zh-CN"] .resume-hero__title {
+    font-family: var(--font-sans);
+    font-weight: 550;
+    line-height: 1.38;
+    letter-spacing: 0.01em;
 }
 
 .project-hero__actions .button svg {
@@ -1098,6 +1121,23 @@ a.education-course-list__main:hover {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
+}
+
+html[lang="zh-CN"] .home-preview-card__body h3,
+html[lang="zh-CN"] .project-card__head h3,
+html[lang="zh-CN"] .project-list__item h3 {
+    font-family: var(--font-sans);
+    font-weight: 550;
+    line-height: 1.38;
+    letter-spacing: 0.01em;
+}
+
+html[lang="zh-CN"] .timeline__content h3,
+html[lang="zh-CN"] .resume-award-item h3 {
+    font-family: var(--font-sans);
+    font-weight: 550;
+    line-height: 1.38;
+    letter-spacing: 0.01em;
 }
 
 .project-card__thumb {
