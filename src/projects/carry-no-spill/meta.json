@@ -1,0 +1,29 @@
+{
+    "title": {
+        "en": "Carry-No-Spill",
+        "zh": "研究触觉反馈对危险液体搬运辅助效果的实验平台设计与开发"
+    },
+    "subtitle": {
+        "en": "An experiment platform for teleoperated hazardous liquid carrying with haptic feedback",
+        "zh": "面向危险液体遥操作搬运与触觉反馈研究的实验平台"
+    },
+    "time": "2026.03",
+    "groups": ["Robotics"],
+    "status": {
+        "en": "Completed",
+        "zh": "已完成"
+    },
+    "collaboration": {
+        "en": "Research Project",
+        "zh": "研究项目"
+    },
+    "intro": {
+        "en": "A teleoperation experiment platform for studying whether force feedback improves hazardous liquid transport under reduced visual observability.",
+        "zh": "一个用于研究在视觉可观测性受限条件下，力反馈是否能够提升危险液体遥操作搬运表现的实验平台。"
+    },
+    "tags": {
+        "en": ["Haptics", "Teleoperation", "PyGame", "Box2D", "ECS Architecture"],
+        "zh": ["触觉反馈", "遥操作", "PyGame", "Box2D", "ECS 架构"]
+    },
+    "priority": 860
+}
