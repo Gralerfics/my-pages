@@ -36,6 +36,11 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v5
+        with:
+          typst-version: ^0.14.0
+
       - name: Install
         run: npm ci
 
@@ -43,6 +48,7 @@ jobs:
         run: npm run build:notes
         env:
           NOTES_REPO_ROOT: ${{ github.workspace }}/external/my-notes
+          REQUIRE_TYPST_CLI: "true"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

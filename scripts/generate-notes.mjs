@@ -10,6 +10,7 @@ const defaultNotesRepoRoot = 'C:/Workspace/my-notes'
 const notesRepoRoot = path.resolve(process.env.NOTES_REPO_ROOT || defaultNotesRepoRoot)
 const generatedRoot = path.join(projectRoot, 'src', 'generated', 'notes')
 const publicBundlesRoot = path.join(projectRoot, 'public', 'generated-notes')
+const requireTypstCli = process.env.REQUIRE_TYPST_CLI === 'true'
 
 function normalizeSlashes(value) {
     return value.replace(/\\/g, '/')
@@ -522,6 +523,16 @@ function hasTypstCli() {
     }
 }
 
+function ensureTypstCliAvailable() {
+    if (!requireTypstCli) {
+        return
+    }
+
+    if (!hasTypstCli()) {
+        throw new Error('Typst CLI is required for note generation in this environment, but `typst` was not found in PATH.')
+    }
+}
+
 function buildLabelMetadataLine(label) {
     const escapedLabel = escapeTypstString(label)
     return `#context [metadata((kind: "label", label: "${escapedLabel}", heading: counter(heading).get(), equation: counter(math.equation).get().first(), image: counter(figure.where(kind: image)).get().first(), table: counter(figure.where(kind: table)).get().first()))]`
@@ -976,6 +987,8 @@ async function main() {
     if (!await exists(notesRepoRoot)) {
         throw new Error(`Notes repository not found: ${notesRepoRoot}`)
     }
+
+    ensureTypstCliAvailable()
 
     await ensureCleanDir(generatedRoot)
     await ensureCleanDir(publicBundlesRoot)
