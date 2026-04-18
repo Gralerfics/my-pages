@@ -23,6 +23,17 @@ const svgMarkup = ref('')
 const renderError = ref('')
 const rootEl = ref(null)
 let resizeObserver = null
+const baseUrl = import.meta.env.BASE_URL || '/'
+
+function withBaseUrl(value) {
+    if (!value || /^https?:\/\//.test(value)) {
+        return value
+    }
+
+    const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+    const normalizedValue = value.replace(/^\/+/, '')
+    return `${normalizedBase}${normalizedValue}`
+}
 
 function getSnippet(bundleBase) {
     if (snippetCache.has(bundleBase)) {
@@ -35,8 +46,8 @@ function getSnippet(bundleBase) {
     const snippet = new TypstSnippet()
     snippet.use(
         TypstSnippet.preloadFonts([
-            '/typst-fonts/msyh.ttc',
-            '/typst-fonts/simhei.ttf',
+            withBaseUrl('/typst-fonts/msyh.ttc'),
+            withBaseUrl('/typst-fonts/simhei.ttf'),
         ]),
         TypstSnippet.withAccessModel(accessModel),
         TypstSnippet.fetchPackageRegistry(accessModel),

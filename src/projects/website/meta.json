@@ -4,7 +4,7 @@
     "time": "2026.03",
     "groups": ["Web"],
     "status": "Ongoing",
-    "repo": "https://github.com/Gralerfics/my-work-collection",
+    "repo": "https://github.com/Gralerfics/my-pages",
     "intro": "A small Vue3 and Vite project for presenting my work.",
     "tags": ["Vue3", "Vite", "Frontend"],
     "priority": 0
