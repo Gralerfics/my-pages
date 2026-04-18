@@ -80,6 +80,10 @@ function parseInclude(line) {
     return match ? match[1] : null
 }
 
+function isStandaloneMathDelimiter(line) {
+    return /^\$\s*(?:<[^>]+>)?\s*$/.test(line.trim())
+}
+
 function rewriteLinePaths(line) {
     return line
 }
@@ -204,6 +208,7 @@ async function parseTypstFile(noteDir, relativeFilePath, state) {
     const rootEntries = []
     const sectionStack = []
     let bufferedLines = []
+    let inBlockMath = false
 
     const flushBuffer = () => {
         if (!bufferedLines.length) {
@@ -223,6 +228,7 @@ async function parseTypstFile(noteDir, relativeFilePath, state) {
     }
 
     for (const line of lines) {
+        const trimmed = line.trim()
         const includeTarget = parseInclude(line)
         if (includeTarget) {
             flushBuffer()
@@ -234,6 +240,20 @@ async function parseTypstFile(noteDir, relativeFilePath, state) {
                 : rootEntries
 
             targetEntries.push(...childResult.entries)
+            continue
+        }
+
+        // Typst multiline equations commonly use a standalone `$` line to open/close
+        // a math block. While inside that block, leading `=` belongs to math content,
+        // not to section headings.
+        if (isStandaloneMathDelimiter(trimmed)) {
+            bufferedLines.push(line)
+            inBlockMath = !inBlockMath
+            continue
+        }
+
+        if (inBlockMath) {
+            bufferedLines.push(line)
             continue
         }
 
