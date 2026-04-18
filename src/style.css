@@ -2103,6 +2103,65 @@ html[lang="zh-CN"] .resume-award-item h3 {
     width: 100%;
 }
 
+.note-rendered-skeleton {
+    display: grid;
+    gap: 0.85rem;
+    width: min(100%, 54rem);
+    margin: 0 auto;
+    padding: 0.4rem 0 0.8rem;
+}
+
+.note-rendered-skeleton__line,
+.note-rendered-skeleton__block {
+    position: relative;
+    overflow: hidden;
+    background: rgba(101, 119, 141, 0.08);
+    border: 1px solid rgba(101, 119, 141, 0.12);
+}
+
+.note-rendered-skeleton__line::after,
+.note-rendered-skeleton__block::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.62) 45%,
+        transparent 100%
+    );
+    animation: note-skeleton-shimmer 1.2s ease-in-out infinite;
+}
+
+.note-rendered-skeleton__line {
+    height: 0.92rem;
+    border-radius: 999px;
+}
+
+.note-rendered-skeleton__line--title {
+    width: 38%;
+    height: 1.15rem;
+}
+
+.note-rendered-skeleton__line--full {
+    width: 100%;
+}
+
+.note-rendered-skeleton__line--medium {
+    width: 72%;
+}
+
+.note-rendered-skeleton__line--short {
+    width: 46%;
+}
+
+.note-rendered-skeleton__block {
+    width: 100%;
+    height: clamp(11rem, 28vw, 16rem);
+    border-radius: 1.1rem;
+}
+
 .note-rendered-error {
     margin: 0;
     white-space: pre-wrap;
@@ -2126,6 +2185,12 @@ html[lang="zh-CN"] .resume-award-item h3 {
 
 .note-rendered-content svg {
     overflow: visible;
+}
+
+@keyframes note-skeleton-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 @media (min-width: 1280px) {

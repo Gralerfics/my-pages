@@ -21,6 +21,7 @@ const props = defineProps({
 const { t } = useI18n()
 const svgMarkup = ref('')
 const renderError = ref('')
+const isLoading = ref(false)
 const rootEl = ref(null)
 let resizeObserver = null
 const baseUrl = import.meta.env.BASE_URL || '/'
@@ -133,6 +134,14 @@ function normalizeSvgViewBox() {
     svg.setAttribute('height', `${height}`)
 }
 
+function waitForPaint() {
+    return new Promise((resolve) => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(resolve)
+        })
+    })
+}
+
 onMounted(() => {
     resizeObserver = new ResizeObserver(() => {
         applySvgWidth()
@@ -153,12 +162,23 @@ watch(
         if (!props.entryPath) {
             svgMarkup.value = ''
             renderError.value = ''
+            isLoading.value = false
             return
         }
 
         const token = ++renderToken
+        isLoading.value = true
+        svgMarkup.value = ''
+        renderError.value = ''
 
         try {
+            await nextTick()
+            await waitForPaint()
+
+            if (token !== renderToken) {
+                return
+            }
+
             configureTypstWasm()
             const { snippet } = getSnippet(props.bundleBase)
             const svg = await snippet.svg({
@@ -171,6 +191,7 @@ watch(
 
             svgMarkup.value = sanitizeSvg(svg)
             renderError.value = ''
+            isLoading.value = false
             await nextTick()
             normalizeSvgViewBox()
             applySvgWidth()
@@ -181,6 +202,7 @@ watch(
             }
 
             svgMarkup.value = ''
+            isLoading.value = false
             renderError.value = error instanceof Error ? error.message : t('common.typstError')
         }
     },
@@ -190,6 +212,14 @@ watch(
 
 <template>
     <div ref="rootEl" class="note-typst-document">
+        <div v-if="isLoading" class="note-rendered-skeleton" aria-hidden="true">
+            <div class="note-rendered-skeleton__line note-rendered-skeleton__line--title" />
+            <div class="note-rendered-skeleton__line note-rendered-skeleton__line--full" />
+            <div class="note-rendered-skeleton__line note-rendered-skeleton__line--medium" />
+            <div class="note-rendered-skeleton__block" />
+            <div class="note-rendered-skeleton__line note-rendered-skeleton__line--full" />
+            <div class="note-rendered-skeleton__line note-rendered-skeleton__line--short" />
+        </div>
         <div v-if="svgMarkup" class="note-rendered-content" v-html="svgMarkup" />
         <pre v-else-if="renderError" class="note-rendered-error">{{ renderError }}</pre>
     </div>
