@@ -44,6 +44,7 @@ let observer = null
 const items = computed(() => [
     { key: 'home', label: t('nav.home') },
     { key: 'resume', label: t('nav.resume') },
+    { key: 'notes', label: t('nav.notes') },
 ])
 
 const currentLocaleOption = computed(() =>
@@ -117,7 +118,7 @@ onBeforeUnmount(() => {
                         :key="item.key"
                         type="button"
                         class="site-header__link"
-                        :class="{ 'is-active': activeView === item.key }"
+                        :class="{ 'is-active': activeView === item.key || (item.key === 'notes' && activeView === 'note') }"
                         @click="emit('navigate', item.key)"
                     >
                         {{ item.label }}

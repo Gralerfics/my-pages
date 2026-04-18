@@ -6,6 +6,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+src/generated/
 .env
 
 node_modules

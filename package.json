@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "generate:notes": "node scripts/generate-notes.mjs",
+    "build": "npm run generate:notes && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

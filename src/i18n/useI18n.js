@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 const STORAGE_KEY = 'preferred-locale'
 
 export const localeOptions = [
-  { code: 'en', flag: '🇬🇧', label: 'English' },
+    { code: 'en', flag: '🇬🇧', label: 'English' },
     { code: 'zh', flag: '🇨🇳', label: '中文' },
 ]
 
@@ -20,8 +20,20 @@ export const locale = ref(getInitialLocale())
 
 const messages = {
     en: {
-        titles: { home: 'Home', projects: 'Projects', resume: 'Resume' },
-        nav: { home: 'Home', resume: 'Resume', projects: 'Projects', github: 'GitHub', language: 'Language' },
+        titles: {
+            home: 'Home',
+            projects: 'Projects',
+            notes: 'Notes',
+            resume: 'Resume',
+        },
+        nav: {
+            home: 'Home',
+            resume: 'Resume',
+            projects: 'Projects',
+            notes: 'Notes',
+            github: 'GitHub',
+            language: 'Language',
+        },
         common: {
             repository: 'Repository',
             cover: '(cover)',
@@ -48,10 +60,29 @@ const messages = {
         projects: {
             eyebrow: 'Projects',
             title: 'Project index',
-            intro: 'A list of selected work across various directions.',
+            intro: 'A list of selected work across different directions.',
             browseEyebrow: 'Browse',
             filterTitle: 'Filter and search',
             groupsAria: 'Project groups',
+        },
+        notes: {
+            eyebrow: 'Notes',
+            title: 'Notes index',
+            intro: 'Structured notes generated from Typst sources.',
+            browseEyebrow: 'Browse',
+            directoryTitle: 'Directory',
+            empty: 'No notes have been generated yet.',
+            detailEyebrow: 'Note',
+            tocEyebrow: 'Outline',
+            showToc: 'Show TOC',
+            hideToc: 'Hide TOC',
+            sectionEyebrow: 'Section',
+            noBody: 'This section currently has no standalone body content.',
+            childrenEyebrow: 'Subsections',
+            childrenTitle: 'Open a deeper section',
+            childSectionLabel: 'Child section',
+            openSection: 'Open section',
+            sectionCount: '{count} top-level sections',
         },
         projectDetail: {
             eyebrow: 'Project',
@@ -86,8 +117,20 @@ const messages = {
         },
     },
     zh: {
-        titles: { home: '首页', projects: '项目列表', resume: '个人简历' },
-        nav: { home: '首页', resume: '个人简历', projects: '项目列表', github: 'GitHub', language: '语言' },
+        titles: {
+            home: '首页',
+            projects: '项目',
+            notes: '笔记',
+            resume: '简历',
+        },
+        nav: {
+            home: '首页',
+            resume: '简历',
+            projects: '项目',
+            notes: '笔记',
+            github: 'GitHub',
+            language: '语言',
+        },
         common: {
             repository: '查看仓库',
             cover: '（封面）',
@@ -95,7 +138,7 @@ const messages = {
             moreInfo: '查看更多',
             all: '全部',
             search: '搜索',
-            searchProjects: '按标题、简介或标签搜索',
+            searchProjects: '按标题、摘要或标签搜索',
             copy: '复制',
             copied: '已复制',
             copyFailed: '复制失败',
@@ -103,21 +146,40 @@ const messages = {
         },
         home: {
             eyebrow: 'Portfolio',
-            browseProjects: '浏览项目列表',
-            resume: '查看个人简历',
+            browseProjects: '浏览项目',
+            resume: '查看简历',
             overviewEyebrow: 'Overview',
             interestsTitle: '兴趣方向',
             previewEyebrow: 'Preview',
-            selectedProjectsTitle: '项目概览',
-            fullIndex: '查看所有项目',
+            selectedProjectsTitle: '精选项目',
+            fullIndex: '查看完整项目列表',
         },
         projects: {
             eyebrow: 'Projects',
             title: '项目索引',
-            intro: '这里是我的部分项目整理，包含个人项目、团体项目、课程作业等。部分中文版介绍正在完善中。',
+            intro: '这里整理了我在不同方向上的部分项目。',
             browseEyebrow: 'Browse',
-            filterTitle: '搜索与筛选',
+            filterTitle: '筛选与搜索',
             groupsAria: '项目分类',
+        },
+        notes: {
+            eyebrow: 'Notes',
+            title: '笔记索引',
+            intro: '由 Typst 源文件解析生成的结构化笔记。',
+            browseEyebrow: 'Browse',
+            directoryTitle: '目录',
+            empty: '当前还没有生成任何笔记。',
+            detailEyebrow: 'Note',
+            tocEyebrow: '目录',
+            showToc: '展开目录',
+            hideToc: '收起目录',
+            sectionEyebrow: 'Section',
+            noBody: '这一节暂时没有可单独展示的正文内容。',
+            childrenEyebrow: 'Subsections',
+            childrenTitle: '进入下一级小节',
+            childSectionLabel: '子节',
+            openSection: '进入该节',
+            sectionCount: '{count} 个一级小节',
         },
         projectDetail: {
             eyebrow: 'Project',
@@ -131,12 +193,12 @@ const messages = {
             profileTitle: '个人陈述',
             educationEyebrow: 'Education',
             educationTitle: '教育经历',
-            hideCourses: '收起课程详情',
-            showCourses: '查看课程详情',
+            hideCourses: '收起课程与成绩',
+            showCourses: '课程与成绩详情',
             projectsEyebrow: 'Projects',
             projectsTitle: '项目经历',
-            projectsSummary: '部分项目整理在项目列表页中，包含概述和详细介绍页面。',
-            openProjects: '转到项目列表',
+            projectsSummary: '部分项目已整理在 Projects 页面中，每个项目都包含简要概述和更详细的单独页面。',
+            openProjects: '打开 Projects 页面',
             skillsEyebrow: 'Skills',
             skillsTitle: '技术能力',
             awardsEyebrow: 'Awards',
@@ -146,7 +208,7 @@ const messages = {
             Robotics: '机器人',
             Embedded: '嵌入式',
             'Digital Design': '数字设计',
-            Graphics: '图形学',
+            Graphics: '图形',
             Web: 'Web',
             Other: '其他',
         },
@@ -155,6 +217,14 @@ const messages = {
 
 function getValueByPath(source, path) {
     return path.split('.').reduce((value, key) => value?.[key], source)
+}
+
+function interpolate(message, params = {}) {
+    if (typeof message !== 'string') {
+        return message
+    }
+
+    return message.replace(/\{(\w+)\}/g, (_, key) => String(params[key] ?? `{${key}}`))
 }
 
 watch(
@@ -172,10 +242,14 @@ watch(
 )
 
 export function useI18n() {
-    const t = (path) =>
-        getValueByPath(messages[locale.value], path)
-        ?? getValueByPath(messages.en, path)
-        ?? path
+    const t = (path, params) => {
+        const value =
+            getValueByPath(messages[locale.value], path)
+            ?? getValueByPath(messages.en, path)
+            ?? path
+
+        return interpolate(value, params)
+    }
 
     const currentLocaleOption = computed(() =>
         localeOptions.find((option) => option.code === locale.value) ?? localeOptions[0],

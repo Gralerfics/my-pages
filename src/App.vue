@@ -1,6 +1,8 @@
 <script setup>
 import { computed, nextTick, watch, watchEffect } from 'vue'
 import HomeView from './components/HomeView.vue'
+import NoteDetailView from './components/NoteDetailView.vue'
+import NotesView from './components/NotesView.vue'
 import ProjectDetailView from './components/ProjectDetailView.vue'
 import ProjectsView from './components/ProjectsView.vue'
 import ResumeView from './components/ResumeView.vue'
@@ -9,10 +11,11 @@ import { trackPageView } from './analytics'
 import { useHashRoute } from './composables/useHashRoute'
 import { localizedContent } from './content/localizedContent'
 import { projectConfig } from './content/projectConfig'
+import { findNoteBySlug, findSectionByPathSlug, notes, notesIndex } from './notes/loadNotes'
 import { projectTabs, projects } from './projects/loadProjects'
 import { useI18n } from './i18n/useI18n'
 
-const { routeName, routeSlug, navigate } = useHashRoute()
+const { routeName, routeSlug, routeExtra, navigate } = useHashRoute()
 const { locale, localeOptions, setLocale, t, groupLabel } = useI18n()
 
 const localizedSiteContent = computed(() =>
@@ -57,12 +60,23 @@ const currentProject = computed(() => {
     return localizedProjects.value.find((project) => project.slug === routeSlug.value) ?? localizedProjects.value[0]
 })
 
+const currentNote = computed(() => findNoteBySlug(routeSlug.value) ?? notes[0] ?? null)
+const currentNoteSection = computed(() => {
+    if (!currentNote.value) {
+        return null
+    }
+
+    return findSectionByPathSlug(currentNote.value, routeExtra.value[0] ?? '')
+})
+
 watchEffect(() => {
     const titles = {
         home: `${profile.value.handle} | ${t('titles.home')}`,
         projects: `${profile.value.handle} | ${t('titles.projects')}`,
+        notes: `${profile.value.handle} | ${t('titles.notes')}`,
         resume: `${profile.value.handle} | ${t('titles.resume')}`,
         project: `${currentProject.value.title} | ${profile.value.handle}`,
+        note: `${currentNoteSection.value?.displayTitle ?? currentNote.value?.title ?? t('titles.notes')} | ${profile.value.handle}`,
     }
 
     document.title = titles[routeName.value]
@@ -115,6 +129,19 @@ watch(
                 :projects="localizedProjects"
                 :project-tabs="projectTabs"
                 @open-project="navigate"
+            />
+
+            <NotesView
+                v-else-if="routeName === 'notes'"
+                :notes-index="notesIndex"
+                @open-note="(noteSlug) => navigate({ noteSlug, sectionPath: '' })"
+            />
+
+            <NoteDetailView
+                v-else-if="routeName === 'note' && currentNote && currentNoteSection"
+                :note="currentNote"
+                :current-section="currentNoteSection"
+                @open-section="navigate"
             />
 
             <ProjectDetailView
