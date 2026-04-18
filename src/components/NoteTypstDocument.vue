@@ -1,11 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { FetchAccessModel } from '@myriaddreamin/typst.ts'
-import { TypstSnippet } from '@myriaddreamin/typst.ts/contrib/snippet'
 import { useI18n } from '../i18n/useI18n'
-import { configureTypstWasm } from '../typst/configureTypstWasm'
-
-const snippetCache = new Map()
 
 const props = defineProps({
     bundleBase: {
@@ -25,6 +20,12 @@ const isLoading = ref(false)
 const rootEl = ref(null)
 let resizeObserver = null
 const baseUrl = import.meta.env.BASE_URL || '/'
+let workerRequestId = 0
+
+const renderWorker = new Worker(
+    new URL('../workers/typstRenderWorker.js', import.meta.url),
+    { type: 'module' },
+)
 
 function withBaseUrl(value) {
     if (!value || /^https?:\/\//.test(value)) {
@@ -36,27 +37,11 @@ function withBaseUrl(value) {
     return `${normalizedBase}${normalizedValue}`
 }
 
-function getSnippet(bundleBase) {
-    if (snippetCache.has(bundleBase)) {
-        return snippetCache.get(bundleBase)
-    }
-
-    const accessModel = new FetchAccessModel(bundleBase, {
-        fullyCached: true,
-    })
-    const snippet = new TypstSnippet()
-    snippet.use(
-        TypstSnippet.preloadFonts([
-            withBaseUrl('/typst-fonts/msyh.ttc'),
-            withBaseUrl('/typst-fonts/simhei.ttf'),
-        ]),
-        TypstSnippet.withAccessModel(accessModel),
-        TypstSnippet.fetchPackageRegistry(accessModel),
-    )
-
-    const instance = { snippet }
-    snippetCache.set(bundleBase, instance)
-    return instance
+function getFontUrls() {
+    return [
+        withBaseUrl('/typst-fonts/msyh.ttc'),
+        withBaseUrl('/typst-fonts/simhei.ttf'),
+    ]
 }
 
 function sanitizeSvg(svg) {
@@ -179,10 +164,39 @@ watch(
                 return
             }
 
-            configureTypstWasm()
-            const { snippet } = getSnippet(props.bundleBase)
-            const svg = await snippet.svg({
-                mainFilePath: props.entryPath,
+            const requestId = ++workerRequestId
+            const svg = await new Promise((resolve, reject) => {
+                const handleMessage = (event) => {
+                    const payload = event.data ?? {}
+                    if (payload.id !== requestId) {
+                        return
+                    }
+
+                    renderWorker.removeEventListener('message', handleMessage)
+                    renderWorker.removeEventListener('error', handleError)
+
+                    if (payload.ok) {
+                        resolve(payload.svg)
+                        return
+                    }
+
+                    reject(new Error(payload.error || t('common.typstError')))
+                }
+
+                const handleError = (event) => {
+                    renderWorker.removeEventListener('message', handleMessage)
+                    renderWorker.removeEventListener('error', handleError)
+                    reject(new Error(event.message || t('common.typstError')))
+                }
+
+                renderWorker.addEventListener('message', handleMessage)
+                renderWorker.addEventListener('error', handleError, { once: true })
+                renderWorker.postMessage({
+                    id: requestId,
+                    bundleBase: props.bundleBase,
+                    entryPath: props.entryPath,
+                    fontUrls: getFontUrls(),
+                })
             })
 
             if (token !== renderToken) {
