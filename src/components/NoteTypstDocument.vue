@@ -59,33 +59,26 @@ const renderKey = computed(() => `${props.bundleBase}::${props.entryPath ?? ''}`
 
 let renderToken = 0
 
-function syncSvgLayout() {
+function getPageWidth(svg) {
+    const page = svg.querySelector('.typst-page')
+    return Number.parseFloat(
+        page?.getAttribute('data-page-width')
+        || svg.getAttribute('data-width')
+        || svg.getAttribute('width')
+        || '0',
+    )
+}
+
+function applySvgWidth() {
     const host = rootEl.value
     const svg = host?.querySelector('.typst-doc')
     if (!host || !svg) {
         return
     }
 
-    const page = svg.querySelector('.typst-page')
-    const bbox = page?.getBBox?.()
-    const pageWidth = Number.parseFloat(
-        page?.getAttribute('data-page-width')
-        || svg.getAttribute('data-width')
-        || svg.getAttribute('width')
-        || '0',
-    )
+    const pageWidth = getPageWidth(svg)
     if (!pageWidth) {
         return
-    }
-
-    if (bbox && Number.isFinite(bbox.height) && bbox.height > 0) {
-        const padTop = 2
-        const padBottom = 8
-        const top = Math.max(0, bbox.y - padTop)
-        const height = bbox.height + (bbox.y - top) + padBottom
-        svg.setAttribute('viewBox', `0 ${top} ${pageWidth} ${height}`)
-        svg.setAttribute('width', `${pageWidth}`)
-        svg.setAttribute('height', `${height}`)
     }
 
     const availableWidth = host.clientWidth
@@ -98,9 +91,40 @@ function syncSvgLayout() {
     svg.style.maxWidth = 'none'
 }
 
+function normalizeSvgViewBox() {
+    const host = rootEl.value
+    const svg = host?.querySelector('.typst-doc')
+    if (!host || !svg) {
+        return
+    }
+
+    const page = svg.querySelector('.typst-page')
+    const bbox = page?.getBBox?.()
+    const pageWidth = getPageWidth(svg)
+    if (!bbox || !Number.isFinite(bbox.height) || bbox.height <= 0 || !pageWidth) {
+        return
+    }
+
+    const originalViewBox = (svg.getAttribute('viewBox') || '')
+        .trim()
+        .split(/\s+/)
+        .map((value) => Number.parseFloat(value))
+    const originalTop = Number.isFinite(originalViewBox[1]) ? originalViewBox[1] : 0
+    const top = originalTop - 6
+    const padBottom = 12
+    const height = Math.max(
+        bbox.y + bbox.height + padBottom - top,
+        bbox.height + padBottom,
+    )
+
+    svg.setAttribute('viewBox', `0 ${top} ${pageWidth} ${height}`)
+    svg.setAttribute('width', `${pageWidth}`)
+    svg.setAttribute('height', `${height}`)
+}
+
 onMounted(() => {
     resizeObserver = new ResizeObserver(() => {
-        syncSvgLayout()
+        applySvgWidth()
     })
 
     if (rootEl.value) {
@@ -137,7 +161,8 @@ watch(
             svgMarkup.value = sanitizeSvg(svg)
             renderError.value = ''
             await nextTick()
-            syncSvgLayout()
+            normalizeSvgViewBox()
+            applySvgWidth()
         }
         catch (error) {
             if (token !== renderToken) {

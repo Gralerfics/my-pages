@@ -440,12 +440,11 @@ async function buildNotePayload(noteDir) {
     const sectionPayloads = []
     for (const section of allSections) {
         const bodySetup = [
-            '#set page(width: 680pt, height: auto, margin: 0pt)',
+            '#set page(width: 600pt, height: auto, margin: 0pt)',
             ...noteGlobalSetupLines,
             ...section.inheritedSetupLines,
             ...section.prependedSetupLines,
             ...collectSetupLines(section.leadEntries),
-            ...labelStubLines,
         ]
         const bodyEntries = [
             ...section.leadEntries,
@@ -454,6 +453,7 @@ async function buildNotePayload(noteDir) {
         const sectionSourceLines = [
             ...bodySetup,
             ...renderableBodyLines(bodyEntries),
+            ...labelStubLines,
         ]
         const entryFile = await writeSectionSource(bundleDir, section, sectionSourceLines)
 

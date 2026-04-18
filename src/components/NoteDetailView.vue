@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useI18n } from '../i18n/useI18n'
 import NoteTypstDocument from './NoteTypstDocument.vue'
 
@@ -17,6 +17,7 @@ const props = defineProps({
 const emit = defineEmits(['open-section'])
 const { t } = useI18n()
 const tocOpen = ref(true)
+const tocReady = ref(false)
 
 const allTocSections = computed(() =>
     props.note.sections.filter((section) => section.path.length),
@@ -38,6 +39,28 @@ function openSection(pathSlug) {
         sectionPath: pathSlug,
     })
 }
+
+function splitSectionLabel(displayTitle) {
+    const match = /^(\d+(?:\.\d+)*)\s+(.*)$/.exec(displayTitle)
+    if (!match) {
+        return {
+            number: '',
+            title: displayTitle,
+        }
+    }
+
+    return {
+        number: match[1],
+        title: match[2],
+    }
+}
+
+onMounted(async () => {
+    await nextTick()
+    requestAnimationFrame(() => {
+        tocReady.value = true
+    })
+})
 </script>
 
 <template>
@@ -52,7 +75,7 @@ function openSection(pathSlug) {
         <section class="editorial-section editorial-section--note">
             <aside
                 class="note-sidebar"
-                :class="{ 'is-collapsed': !tocOpen }"
+                :class="{ 'is-collapsed': !tocOpen, 'is-ready': tocReady }"
             >
                 <button
                     type="button"
@@ -117,7 +140,6 @@ function openSection(pathSlug) {
                     :bundle-base="note.bundleBase"
                     :entry-path="currentSection.typstEntry"
                 />
-                <p v-else class="note-empty-body">{{ t('notes.noBody') }}</p>
 
                 <div v-if="currentSection.childSections.length" class="note-children-list">
                     <button
@@ -127,7 +149,15 @@ function openSection(pathSlug) {
                         class="note-children-list__item"
                         @click="openSection(child.pathSlug)"
                     >
-                        {{ child.displayTitle }}
+                        <span
+                            v-if="splitSectionLabel(child.displayTitle).number"
+                            class="note-children-list__number"
+                        >
+                            {{ splitSectionLabel(child.displayTitle).number }}
+                        </span>
+                        <span class="note-children-list__title">
+                            {{ splitSectionLabel(child.displayTitle).title }}
+                        </span>
                     </button>
                 </div>
             </div>
