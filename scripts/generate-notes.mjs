@@ -1,5 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import os from 'node:os'
+import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -56,6 +58,10 @@ function isSetupOnly(lines) {
     })
 }
 
+function filterSetupLines(lines) {
+    return lines.filter((line) => !line.trim().startsWith('#hide['))
+}
+
 function parseHeading(line) {
     const match = /^(=+)\s+(.*)$/.exec(line)
     if (!match) {
@@ -103,6 +109,10 @@ async function ensureCleanDir(targetPath) {
     await fs.mkdir(targetPath, { recursive: true })
 }
 
+async function removeDirIfExists(targetPath) {
+    await fs.rm(targetPath, { recursive: true, force: true })
+}
+
 async function walkNoteDirs(rootDir, relativeDir = '') {
     const currentDir = path.join(rootDir, relativeDir)
     const metaPath = path.join(currentDir, 'meta.json')
@@ -144,6 +154,12 @@ async function collectFiles(rootDir) {
     return files
 }
 
+function escapeTypstString(value) {
+    return value
+        .replaceAll('\\', '\\\\')
+        .replaceAll('"', '\\"')
+}
+
 function sectionDisplayTitle(section) {
     return section.number ? `${section.number} ${section.rawTitle}` : section.rawTitle
 }
@@ -175,7 +191,7 @@ function collectLeadingRootSetup(entries) {
         }
 
         if (entry.type === 'content' && isSetupOnly(entry.lines)) {
-            setupLines.push(...entry.lines.map((line) => rewriteLinePaths(line, entry.sourcePath)))
+            setupLines.push(...filterSetupLines(entry.lines.map((line) => rewriteLinePaths(line, entry.sourcePath))))
             continue
         }
 
@@ -188,7 +204,7 @@ function collectLeadingRootSetup(entries) {
 function collectSetupLines(entries) {
     return entries
         .filter((entry) => entry.type === 'content' && isSetupOnly(entry.lines))
-        .flatMap((entry) => entry.lines.map((line) => rewriteLinePaths(line, entry.sourcePath)))
+        .flatMap((entry) => filterSetupLines(entry.lines.map((line) => rewriteLinePaths(line, entry.sourcePath))))
 }
 
 async function parseTypstFile(noteDir, relativeFilePath, state) {
@@ -303,7 +319,7 @@ function annotateSections(entries, context) {
     for (const entry of entries) {
         if (entry.type === 'content') {
             if (isSetupOnly(entry.lines)) {
-                pendingSetupLines.push(...entry.lines.map((line) => rewriteLinePaths(line, entry.sourcePath)))
+                pendingSetupLines.push(...filterSetupLines(entry.lines.map((line) => rewriteLinePaths(line, entry.sourcePath))))
             }
             else {
                 pendingSetupLines = []
@@ -407,6 +423,407 @@ function renderableBodyLines(entries) {
     return entries.flatMap((entry) => entry.lines.map((line) => rewriteLinePaths(line, entry.sourcePath)))
 }
 
+function createReferenceDisplay(label, counters) {
+    if (label.startsWith('sec:')) {
+        return null
+    }
+
+    if (label.startsWith('fig:')) {
+        counters.figure += 1
+        return `Figure ${counters.figure}`
+    }
+
+    if (label.startsWith('tab:')) {
+        counters.table += 1
+        return `Table ${counters.table}`
+    }
+
+    return null
+}
+
+function extractLabelsFromLines(lines) {
+    const labels = new Set()
+
+    for (const line of lines) {
+        const matches = line.matchAll(/<([^<>\s]+)>/g)
+        for (const match of matches) {
+            if (match[1]) {
+                labels.add(match[1])
+            }
+        }
+    }
+
+    return labels
+}
+
+function isDisplayEquationDelimiterLine(trimmedLine) {
+    return /^\$\s*(?:<[^>]+>)?\s*$/.test(trimmedLine)
+}
+
+function isSingleLineDisplayEquation(trimmedLine) {
+    if (!trimmedLine.startsWith('$')) {
+        return false
+    }
+
+    if (isDisplayEquationDelimiterLine(trimmedLine)) {
+        return false
+    }
+
+    return /^\$[\s\S]*\$\s*(?:<[^>]+>)?\s*$/.test(trimmedLine)
+}
+
+function countBlockEquationsInLines(lines) {
+    let count = 0
+    let inBlockMath = false
+
+    for (const line of lines) {
+        const trimmed = line.trim()
+
+        if (inBlockMath) {
+            if (isDisplayEquationDelimiterLine(trimmed)) {
+                inBlockMath = false
+            }
+            continue
+        }
+
+        if (isSingleLineDisplayEquation(trimmed)) {
+            count += 1
+            continue
+        }
+
+        if (isDisplayEquationDelimiterLine(trimmed)) {
+            count += 1
+            inBlockMath = true
+        }
+    }
+
+    return count
+}
+
+function assignEquationOffsets(entries, state = { count: 0 }) {
+    for (const entry of entries) {
+        if (entry.type === 'content') {
+            state.count += countBlockEquationsInLines(entry.lines)
+            continue
+        }
+
+        entry.equationOffset = state.count
+        assignEquationOffsets(entry.entries, state)
+    }
+}
+
+function hasTypstCli() {
+    try {
+        execFileSync('typst', ['--version'], { stdio: 'ignore' })
+        return true
+    }
+    catch {
+        return false
+    }
+}
+
+function buildLabelMetadataLine(label) {
+    const escapedLabel = escapeTypstString(label)
+    return `#context [metadata((kind: "label", label: "${escapedLabel}", heading: counter(heading).get(), equation: counter(math.equation).get().first(), image: counter(figure.where(kind: image)).get().first(), table: counter(figure.where(kind: table)).get().first()))]`
+}
+
+function instrumentTypstSourceForMetadata(source) {
+    const lines = splitLines(source)
+    const output = []
+
+    for (const line of lines) {
+        output.push(line)
+
+        if (line.trim().startsWith('//')) {
+            continue
+        }
+
+        for (const label of extractLabelsFromLines([line])) {
+            output.push(buildLabelMetadataLine(label))
+        }
+    }
+
+    return `${output.join('\n')}\n`
+}
+
+function chooseBestLabelRecord(label, records) {
+    if (!records.length) {
+        return null
+    }
+
+    if (label.startsWith('sec:')) {
+        return records.find((record) => Array.isArray(record.heading) && record.heading.length > 0) ?? records[0]
+    }
+
+    if (label.startsWith('equ:')) {
+        return records
+            .filter((record) => Number(record.equation) > 0)
+            .sort((left, right) => Number(right.equation) - Number(left.equation))[0]
+            ?? null
+    }
+
+    if (label.startsWith('fig:')) {
+        return records
+            .filter((record) => Number(record.image) > 0)
+            .sort((left, right) => Number(right.image) - Number(left.image))[0]
+            ?? null
+    }
+
+    if (label.startsWith('tab:')) {
+        return records
+            .filter((record) => Number(record.table) > 0)
+            .sort((left, right) => Number(right.table) - Number(left.table))[0]
+            ?? null
+    }
+
+    return records[0]
+}
+
+async function resolveTypstRenderData(noteDir, entryPath, allSections) {
+    if (!hasTypstCli()) {
+        return null
+    }
+
+    const tempNoteDir = path.join(
+        os.tmpdir(),
+        `my-pages-note-query-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    )
+    const queryFilePath = path.join(tempNoteDir, '__notes_query.typ')
+    const queryLines = [
+        `#include "${entryPath}"`,
+        '#context [',
+        '  #for h in query(heading) {',
+        '    metadata((kind: "section", heading: counter(heading).at(h.location()), equation: counter(math.equation).at(h.location()).first(), image: counter(figure.where(kind: image)).at(h.location()).first(), table: counter(figure.where(kind: table)).at(h.location()).first()))',
+        '  }',
+        ']',
+    ]
+
+    try {
+        await fs.cp(noteDir, tempNoteDir, { recursive: true })
+        const copiedFiles = await collectFiles(tempNoteDir)
+        for (const filePath of copiedFiles) {
+            if (!filePath.endsWith('.typ')) {
+                continue
+            }
+
+            const source = await fs.readFile(filePath, 'utf8')
+            const instrumented = instrumentTypstSourceForMetadata(source)
+            await fs.writeFile(filePath, instrumented, 'utf8')
+        }
+
+        await fs.writeFile(queryFilePath, `${queryLines.join('\n')}\n`, 'utf8')
+        const raw = execFileSync(
+            'typst',
+            ['query', '--root', tempNoteDir, queryFilePath, 'metadata'],
+            {
+                encoding: 'utf8',
+                maxBuffer: 10 * 1024 * 1024,
+            },
+        )
+        const items = JSON.parse(raw)
+        const sectionItems = items.filter((item) => item?.value?.kind === 'section')
+        const labelItems = items.filter((item) => item?.value?.kind === 'label')
+
+        if (sectionItems.length !== allSections.length) {
+            return null
+        }
+
+        const labelBuckets = new Map()
+        for (const item of labelItems) {
+            const label = item?.value?.label
+            if (!label) {
+                continue
+            }
+
+            if (!labelBuckets.has(label)) {
+                labelBuckets.set(label, [])
+            }
+            labelBuckets.get(label).push(item.value)
+        }
+
+        const labels = new Map()
+        for (const [label, records] of labelBuckets) {
+            const best = chooseBestLabelRecord(label, records)
+            if (best) {
+                labels.set(label, best)
+            }
+        }
+
+        return {
+            sections: sectionItems.map((item) => ({
+                heading: Array.isArray(item.value.heading) ? item.value.heading.map((value) => Number(value) || 0) : [],
+                equation: Number(item.value.equation) || 0,
+                image: Number(item.value.image) || 0,
+                table: Number(item.value.table) || 0,
+            })),
+            labels,
+        }
+    }
+    catch {
+        return null
+    }
+    finally {
+        await removeDirIfExists(tempNoteDir)
+    }
+}
+
+function buildReferenceRegistry(entries, sections, equationNumbers = new Map()) {
+    const registry = new Map()
+
+    for (const section of sections) {
+        if (section.anchor) {
+            registry.set(section.anchor, `Section ${section.number}`)
+        }
+    }
+
+    const counters = {
+        figure: 0,
+        table: 0,
+    }
+
+    const assignMaxEquationReference = (label, equationNumber) => {
+        if (!label.startsWith('equ:') || equationNumber <= 0) {
+            return
+        }
+
+        const nextDisplay = `Equation (${equationNumber})`
+        const currentDisplay = registry.get(label)
+        const currentMatch = /^Equation \((\d+)\)$/.exec(currentDisplay || '')
+        const currentNumber = currentMatch ? Number(currentMatch[1]) : 0
+        if (equationNumber > currentNumber) {
+            registry.set(label, nextDisplay)
+        }
+    }
+
+    for (const section of sections) {
+        let inBlockMath = false
+        let currentEquationNumber = 0
+        let nextEquationNumber = Number(section.equationOffset) || 0
+        const bodyLines = renderableBodyLines([
+            ...section.leadEntries,
+            ...section.tailEntries,
+        ])
+
+        for (const line of bodyLines) {
+            const trimmed = line.trim()
+
+            if (inBlockMath) {
+                for (const label of extractLabelsFromLines([line])) {
+                    assignMaxEquationReference(label, currentEquationNumber)
+                }
+
+                if (isDisplayEquationDelimiterLine(trimmed)) {
+                    inBlockMath = false
+                    currentEquationNumber = 0
+                }
+                continue
+            }
+
+            if (isSingleLineDisplayEquation(trimmed)) {
+                nextEquationNumber += 1
+                for (const label of extractLabelsFromLines([line])) {
+                    assignMaxEquationReference(label, nextEquationNumber)
+                }
+                continue
+            }
+
+            if (isDisplayEquationDelimiterLine(trimmed)) {
+                nextEquationNumber += 1
+                currentEquationNumber = nextEquationNumber
+                for (const label of extractLabelsFromLines([line])) {
+                    assignMaxEquationReference(label, currentEquationNumber)
+                }
+                inBlockMath = true
+                continue
+            }
+        }
+    }
+
+    const visitEntries = (currentEntries) => {
+        for (const entry of currentEntries) {
+            if (entry.type === 'content') {
+                for (const line of entry.lines) {
+                    for (const label of extractLabelsFromLines([line])) {
+                        if (registry.has(label)) {
+                            continue
+                        }
+
+                        if (label.startsWith('equ:')) {
+                            const equationNumber = equationNumbers.get(label)?.equation ?? 0
+                            if (equationNumber > 0) {
+                                registry.set(label, `Equation (${equationNumber})`)
+                            }
+                            continue
+                        }
+
+                        if (label.startsWith('fig:')) {
+                            const figureNumber = equationNumbers.get(label)?.image ?? 0
+                            if (figureNumber > 0) {
+                                registry.set(label, `Figure ${figureNumber}`)
+                            }
+                            continue
+                        }
+
+                        if (label.startsWith('tab:')) {
+                            const tableNumber = equationNumbers.get(label)?.table ?? 0
+                            if (tableNumber > 0) {
+                                registry.set(label, `Table ${tableNumber}`)
+                            }
+                            continue
+                        }
+
+                        const display = createReferenceDisplay(label, counters)
+                        if (display) {
+                            registry.set(label, display)
+                        }
+                    }
+                }
+                continue
+            }
+
+            visitEntries(entry.entries)
+        }
+    }
+
+    visitEntries(entries)
+    return registry
+}
+
+function downgradeUnresolvedRefs(lines, availableLabels, referenceRegistry) {
+    return lines.map((line) => {
+        if (line.trim().startsWith('//')) {
+            return line
+        }
+
+        return line.replace(/(^|[^\w])@([A-Za-z0-9:_-]+)/g, (match, prefix, label) => {
+            if (availableLabels.has(label)) {
+                return match
+            }
+
+            const display = referenceRegistry.get(label) ?? `@${label}`
+            return `${prefix}#text("${escapeTypstString(display)}")`
+        })
+    })
+}
+
+function extractReferencedLabels(lines) {
+    const labels = new Set()
+
+    for (const line of lines) {
+        if (line.trim().startsWith('//')) {
+            continue
+        }
+
+        for (const match of line.matchAll(/(^|[^\w])@([A-Za-z0-9:_-]+)/g)) {
+            if (match[2]) {
+                labels.add(match[2])
+            }
+        }
+    }
+
+    return labels
+}
+
 async function copyNoteFiles(noteDir, bundleDir) {
     const filesDir = path.join(bundleDir, 'files')
     const noteFiles = await collectFiles(noteDir)
@@ -447,17 +864,28 @@ async function buildNotePayload(noteDir) {
         parentSectionPath: [],
         numberPrefix: '',
     })
+    assignEquationOffsets(parsed.entries)
 
     const bundleDir = path.join(publicBundlesRoot, slug)
     await copyNoteFiles(noteDir, bundleDir)
 
     const topSections = parsed.entries.filter((entry) => entry.type === 'section')
     const allSections = flattenSections(parsed.entries)
+    const typstRenderData = await resolveTypstRenderData(noteDir, entryPath, allSections)
+    if (typstRenderData?.sections?.length === allSections.length) {
+        allSections.forEach((section, index) => {
+            const offsets = typstRenderData.sections[index]
+            section.equationOffset = offsets.equation
+            section.figureOffset = offsets.image
+            section.tableOffset = offsets.table
+        })
+    }
     const noteGlobalSetupLines = collectLeadingRootSetup(parsed.entries)
-    const labelStubLines = allSections
-        .filter((section) => section.anchor)
-        .map((section) => `#hide[${section.headingLine}]`)
-
+    const referenceRegistry = buildReferenceRegistry(
+        parsed.entries,
+        allSections,
+        typstRenderData?.labels ?? new Map(),
+    )
     const sectionPayloads = []
     for (const section of allSections) {
         const bodySetup = [
@@ -466,14 +894,28 @@ async function buildNotePayload(noteDir) {
             ...section.inheritedSetupLines,
             ...section.prependedSetupLines,
             ...collectSetupLines(section.leadEntries),
+            `#counter(math.equation).update(${section.equationOffset ?? 0})`,
+            `#counter(figure.where(kind: image)).update(${section.figureOffset ?? 0})`,
+            `#counter(figure.where(kind: table)).update(${section.tableOffset ?? 0})`,
         ]
         const bodyEntries = [
             ...section.leadEntries,
             ...section.tailEntries,
         ]
+        const rawBodyLines = renderableBodyLines(bodyEntries)
+        const availableLabels = new Set([
+            ...(section.anchor ? [section.anchor] : []),
+            ...extractLabelsFromLines(bodySetup),
+            ...extractLabelsFromLines(rawBodyLines),
+        ])
+        const referencedLabels = extractReferencedLabels(rawBodyLines)
+        const labelStubLines = allSections
+            .filter((candidate) => candidate.anchor && referencedLabels.has(candidate.anchor))
+            .map((candidate) => `#hide[${candidate.headingLine}]`)
+        const bodyLines = downgradeUnresolvedRefs(rawBodyLines, availableLabels, referenceRegistry)
         const sectionSourceLines = [
             ...bodySetup,
-            ...renderableBodyLines(bodyEntries),
+            ...bodyLines,
             ...labelStubLines,
         ]
         const entryFile = await writeSectionSource(bundleDir, section, sectionSourceLines)
