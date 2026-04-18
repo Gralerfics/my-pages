@@ -1,0 +1,11 @@
+name: Sync notes to Pages
+
+on:
+  repository_dispatch:
+    types: ["sync-notes"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/build-and-deploy-pages.yml
+    secrets: inherit

@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
-const notesRepoRoot = 'C:/Workspace/my-notes'
+const defaultNotesRepoRoot = 'C:/Workspace/my-notes'
+const notesRepoRoot = path.resolve(process.env.NOTES_REPO_ROOT || defaultNotesRepoRoot)
 const generatedRoot = path.join(projectRoot, 'src', 'generated', 'notes')
 const publicBundlesRoot = path.join(projectRoot, 'public', 'generated-notes')
 

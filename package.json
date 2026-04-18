@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "generate:notes": "node scripts/generate-notes.mjs",
-    "build": "npm run generate:notes && vite build",
+    "build:web": "vite build",
+    "build": "npm run build:web",
+    "build:notes": "npm run generate:notes && npm run build:web",
     "preview": "vite preview"
   },
   "dependencies": {
