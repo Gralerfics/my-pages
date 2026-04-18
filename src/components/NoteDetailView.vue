@@ -1,6 +1,7 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from '../i18n/useI18n'
+import NoteTypstDocument from './NoteTypstDocument.vue'
 
 const props = defineProps({
     note: {
@@ -16,25 +17,10 @@ const props = defineProps({
 const emit = defineEmits(['open-section'])
 const { t } = useI18n()
 const tocOpen = ref(true)
-const renderedContent = ref(null)
 
 const allTocSections = computed(() =>
     props.note.sections.filter((section) => section.path.length),
 )
-
-const breadcrumb = computed(() => {
-    if (!props.currentSection.path?.length) {
-        return []
-    }
-
-    return props.currentSection.path
-        .map((_, index) => {
-            const targetPath = props.currentSection.path.slice(0, index + 1)
-            const pathSlug = targetPath.join('-')
-            return props.note.sections.find((section) => section.pathSlug === pathSlug)
-        })
-        .filter(Boolean)
-})
 
 const eyebrow = computed(() => `${t('notes.detailEyebrow')} / ${props.note.title}`)
 
@@ -52,49 +38,6 @@ function openSection(pathSlug) {
         sectionPath: pathSlug,
     })
 }
-
-function handleTypstHashChange() {
-    if (!window.location.hash.startsWith('#/loc-') && !window.location.hash.startsWith('#loc-')) {
-        return
-    }
-
-    const sectionPath = props.currentSection.pathSlug ? `/${props.currentSection.pathSlug}` : ''
-    history.replaceState(null, '', `#/notes/${props.note.slug}${sectionPath}`)
-}
-
-function bindRenderedSvg() {
-    const host = renderedContent.value
-    if (!host) {
-        return
-    }
-
-    const svg = host.querySelector('.typst-doc')
-    if (!svg) {
-        return
-    }
-
-    if (typeof window.typstProcessSvg === 'function' && !svg.dataset.typstProcessed) {
-        window.typstProcessSvg(svg)
-        svg.dataset.typstProcessed = 'true'
-    }
-}
-
-onMounted(() => {
-    window.addEventListener('hashchange', handleTypstHashChange)
-})
-
-onBeforeUnmount(() => {
-    window.removeEventListener('hashchange', handleTypstHashChange)
-})
-
-watch(
-    () => props.currentSection.pathSlug,
-    async () => {
-        await nextTick()
-        bindRenderedSvg()
-    },
-    { immediate: true },
-)
 </script>
 
 <template>
@@ -103,18 +46,6 @@ watch(
             <div class="project-hero__body">
                 <p class="eyebrow">{{ eyebrow }}</p>
                 <h1>{{ currentSection.displayTitle }}</h1>
-                <p v-if="breadcrumb.length" class="note-breadcrumb">
-                    <template v-for="(item, index) in breadcrumb" :key="item.pathSlug">
-                        <button
-                            type="button"
-                            class="note-breadcrumb__item"
-                            @click="openSection(item.pathSlug)"
-                        >
-                            {{ item.displayTitle }}
-                        </button>
-                        <span v-if="index < breadcrumb.length - 1" class="note-breadcrumb__separator">/</span>
-                    </template>
-                </p>
             </div>
         </section>
 
@@ -125,13 +56,42 @@ watch(
             >
                 <button
                     type="button"
-                    class="note-sidebar__toggle"
+                    class="note-sidebar__toggle note-sidebar__toggle--desktop"
                     @click="tocOpen = !tocOpen"
+                    :aria-label="tocOpen ? t('notes.hideToc') : t('notes.showToc')"
                 >
-                    {{ tocOpen ? t('notes.hideToc') : t('notes.showToc') }}
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path
+                            v-if="tocOpen"
+                            d="M10.5 3.5L6 8l4.5 4.5"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.7"
+                        />
+                        <path
+                            v-else
+                            d="M5.5 3.5L10 8l-4.5 4.5"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.7"
+                        />
+                    </svg>
                 </button>
                 <div class="note-toc">
-                    <p class="eyebrow">{{ t('notes.tocEyebrow') }}</p>
+                    <div class="note-toc__head">
+                        <p class="eyebrow">{{ t('notes.tocEyebrow') }}</p>
+                        <button
+                            type="button"
+                            class="text-link note-toc__inline-toggle"
+                            @click="tocOpen = !tocOpen"
+                        >
+                            {{ tocOpen ? t('notes.hideToc') : t('notes.showToc') }}
+                        </button>
+                    </div>
                     <div class="note-toc__list">
                         <button
                             v-for="section in allTocSections"
@@ -152,26 +112,24 @@ watch(
             </aside>
 
             <div class="section-body note-section-body">
-                <div
-                    v-if="currentSection.svg"
-                    ref="renderedContent"
-                    class="note-rendered-content"
-                    v-html="currentSection.svg"
+                <NoteTypstDocument
+                    v-if="currentSection.typstEntry"
+                    :bundle-base="note.bundleBase"
+                    :entry-path="currentSection.typstEntry"
                 />
                 <p v-else class="note-empty-body">{{ t('notes.noBody') }}</p>
 
-                <p v-if="currentSection.childSections.length" class="note-children-inline">
-                    <template v-for="(child, index) in currentSection.childSections" :key="child.pathSlug">
-                        <button
-                            type="button"
-                            class="note-inline-link"
-                            @click="openSection(child.pathSlug)"
-                        >
-                            {{ child.displayTitle }}
-                        </button>
-                        <span v-if="index < currentSection.childSections.length - 1" class="note-inline-separator"> / </span>
-                    </template>
-                </p>
+                <div v-if="currentSection.childSections.length" class="note-children-list">
+                    <button
+                        v-for="child in currentSection.childSections"
+                        :key="child.pathSlug"
+                        type="button"
+                        class="note-children-list__item"
+                        @click="openSection(child.pathSlug)"
+                    >
+                        {{ child.displayTitle }}
+                    </button>
+                </div>
             </div>
         </section>
     </div>

@@ -1,11 +1,8 @@
 <script setup>
 import { computed, nextTick, onMounted, onUpdated, ref, watch } from 'vue'
 import { $typst } from '@myriaddreamin/typst.ts'
-import rendererWasmUrl from '@myriaddreamin/typst-ts-renderer/wasm?url'
-import compilerWasmUrl from '@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm?url'
-import { setImportWasmModule as setRendererImportWasmModule } from '@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer.mjs'
-import { setImportWasmModule as setCompilerImportWasmModule } from '@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler.mjs'
 import { useI18n } from '../i18n/useI18n'
+import { configureTypstWasm } from '../typst/configureTypstWasm'
 
 const props = defineProps({
     code: {
@@ -30,32 +27,7 @@ const props = defineProps({
     },
 })
 
-let typstWasmConfigured = false
 const { t } = useI18n()
-
-function configureTypstWasm() {
-    if (typstWasmConfigured) {
-        return
-    }
-
-    setRendererImportWasmModule((wasmName) => {
-        if (wasmName === 'typst_ts_renderer_bg.wasm') {
-            return fetch(rendererWasmUrl)
-        }
-
-        throw new Error(`Unknown renderer wasm module: ${wasmName}`)
-    })
-
-    setCompilerImportWasmModule((wasmName) => {
-        if (wasmName === 'typst_ts_web_compiler_bg.wasm') {
-            return fetch(compilerWasmUrl)
-        }
-
-        throw new Error(`Unknown compiler wasm module: ${wasmName}`)
-    })
-
-    typstWasmConfigured = true
-}
 
 const svgMarkup = ref('')
 const renderError = ref('')

@@ -1,16 +1,12 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { MemoryAccessModel } from '@myriaddreamin/typst.ts/fs/memory'
-import { TypstSnippet } from '@myriaddreamin/typst.ts/contrib/snippet'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
 const notesRepoRoot = 'C:/Workspace/my-notes'
 const generatedRoot = path.join(projectRoot, 'src', 'generated', 'notes')
-const VFS_ROOT = '/@memory/note'
-const COMPILE_ROOT = '/@memory'
+const publicBundlesRoot = path.join(projectRoot, 'public', 'generated-notes')
 
 function normalizeSlashes(value) {
     return value.replace(/\\/g, '/')
@@ -31,6 +27,10 @@ function createStableSlug(relativeDir) {
         .filter(Boolean)
         .map((segment) => slugifySegment(segment) || 'note')
         .join('__')
+}
+
+function createSectionFileName(section) {
+    return `__section__${(section.pathSlug || 'root').replace(/[^A-Za-z0-9.-]+/g, '_')}.typ`
 }
 
 function removeBom(text) {
@@ -79,7 +79,7 @@ function parseInclude(line) {
     return match ? match[1] : null
 }
 
-function rewriteLinePaths(line, sourcePath) {
+function rewriteLinePaths(line) {
     return line
 }
 
@@ -109,11 +109,7 @@ async function walkNoteDirs(rootDir, relativeDir = '') {
     const results = []
 
     for (const entry of entries) {
-        if (!entry.isDirectory()) {
-            continue
-        }
-
-        if (entry.name.startsWith('.')) {
+        if (!entry.isDirectory() || entry.name.startsWith('.')) {
             continue
         }
 
@@ -386,64 +382,33 @@ function buildDirectoryTree(notes) {
     return root
 }
 
-function packageKey(name, version) {
-    return `${name}@${version}`
-}
-
-async function createSnippetForNote(noteDir) {
-    const noteFiles = await collectFiles(noteDir)
-    const accessModel = new MemoryAccessModel()
-
-    for (const filePath of noteFiles) {
-        const relativePath = `/${normalizeSlashes(path.relative(noteDir, filePath))}`
-        const fileBuffer = new Uint8Array(await fs.readFile(filePath))
-        accessModel.insertFile(`${VFS_ROOT}${relativePath}`, fileBuffer, new Date())
-    }
-
-    const packageBuffers = new Map()
-    const snippet = new TypstSnippet()
-    snippet.use(
-        TypstSnippet.withAccessModel(accessModel),
-        TypstSnippet.fetchPackageBy(accessModel, (spec) => {
-            const key = packageKey(spec.name, spec.version)
-            if (packageBuffers.has(key)) {
-                return packageBuffers.get(key)
-            }
-
-            const url = `https://packages.typst.org/preview/${spec.name}-${spec.version}.tar.gz`
-            const buffer = execFileSync('curl', ['-L', '-sS', url], {
-                encoding: 'buffer',
-                maxBuffer: 32 * 1024 * 1024,
-            })
-            const typedBuffer = new Uint8Array(buffer)
-            packageBuffers.set(key, typedBuffer)
-            return typedBuffer
-        }),
-    )
-
-    return { accessModel, snippet }
-}
-
-async function compileSectionSvg(snippet, sourceLines, shadowPath) {
-    const source = sourceLines.join('\n').trim()
-    if (!source) {
-        return ''
-    }
-
-    await snippet.mapShadow(shadowPath, new TextEncoder().encode(source))
-    try {
-        return await snippet.svg({
-            mainFilePath: shadowPath,
-            root: COMPILE_ROOT,
-        })
-    }
-    finally {
-        await snippet.unmapShadow(shadowPath)
-    }
-}
-
 function renderableBodyLines(entries) {
     return entries.flatMap((entry) => entry.lines.map((line) => rewriteLinePaths(line, entry.sourcePath)))
+}
+
+async function copyNoteFiles(noteDir, bundleDir) {
+    const filesDir = path.join(bundleDir, 'files')
+    const noteFiles = await collectFiles(noteDir)
+
+    for (const filePath of noteFiles) {
+        const relativePath = normalizeSlashes(path.relative(noteDir, filePath))
+        const targetPath = path.join(filesDir, relativePath)
+        await fs.mkdir(path.dirname(targetPath), { recursive: true })
+        await fs.copyFile(filePath, targetPath)
+    }
+}
+
+async function writeSectionSource(bundleDir, section, sourceLines) {
+    const sourceDir = path.posix.dirname(section.sourcePath)
+    const relativeEntryPath = normalizeSlashes(path.posix.join(
+        '/files',
+        sourceDir === '.' ? '' : sourceDir,
+        createSectionFileName(section),
+    ))
+    const filesystemPath = path.join(bundleDir, relativeEntryPath.replace(/^\//, ''))
+    await fs.mkdir(path.dirname(filesystemPath), { recursive: true })
+    await fs.writeFile(filesystemPath, `${sourceLines.join('\n').trim()}\n`, 'utf8')
+    return relativeEntryPath
 }
 
 async function buildNotePayload(noteDir) {
@@ -462,9 +427,11 @@ async function buildNotePayload(noteDir) {
         numberPrefix: '',
     })
 
+    const bundleDir = path.join(publicBundlesRoot, slug)
+    await copyNoteFiles(noteDir, bundleDir)
+
     const topSections = parsed.entries.filter((entry) => entry.type === 'section')
     const allSections = flattenSections(parsed.entries)
-    const { snippet } = await createSnippetForNote(noteDir)
     const noteGlobalSetupLines = collectLeadingRootSetup(parsed.entries)
     const labelStubLines = allSections
         .filter((section) => section.anchor)
@@ -473,7 +440,7 @@ async function buildNotePayload(noteDir) {
     const sectionPayloads = []
     for (const section of allSections) {
         const bodySetup = [
-            '#set page(width: auto, height: auto, margin: 0pt)',
+            '#set page(width: 680pt, height: auto, margin: 0pt)',
             ...noteGlobalSetupLines,
             ...section.inheritedSetupLines,
             ...section.prependedSetupLines,
@@ -488,20 +455,7 @@ async function buildNotePayload(noteDir) {
             ...bodySetup,
             ...renderableBodyLines(bodyEntries),
         ]
-        const shadowDir = path.posix.dirname(`${VFS_ROOT}/${section.sourcePath}`)
-        let svg = ''
-
-        try {
-            svg = await compileSectionSvg(
-                snippet,
-                sectionSourceLines,
-                `${shadowDir}/__generated__-${slug}-${section.pathSlug || 'root'}.typ`,
-            )
-        }
-        catch (error) {
-            const preview = sectionSourceLines.slice(0, 80).join('\n')
-            throw new Error(`Failed to compile section ${section.pathSlug || 'root'} in ${slug}\n${preview}\n\n${error}`)
-        }
+        const entryFile = await writeSectionSource(bundleDir, section, sectionSourceLines)
 
         sectionPayloads.push({
             path: section.path,
@@ -512,6 +466,7 @@ async function buildNotePayload(noteDir) {
             displayTitle: sectionDisplayTitle(section),
             anchor: section.anchor,
             sourcePath: section.sourcePath,
+            typstEntry: entryFile,
             childSections: section.childSections.map((child) => ({
                 path: child.path,
                 pathSlug: child.pathSlug,
@@ -519,7 +474,6 @@ async function buildNotePayload(noteDir) {
                 title: child.rawTitle,
                 displayTitle: sectionDisplayTitle(child),
             })),
-            svg,
         })
     }
 
@@ -532,6 +486,7 @@ async function buildNotePayload(noteDir) {
         displayTitle: meta.name,
         anchor: null,
         sourcePath: `/${entryPath}`,
+        typstEntry: null,
         childSections: topSections.map((section) => ({
             path: section.path,
             pathSlug: section.pathSlug,
@@ -539,7 +494,6 @@ async function buildNotePayload(noteDir) {
             title: section.rawTitle,
             displayTitle: sectionDisplayTitle(section),
         })),
-        svg: '',
     }
 
     const stats = await fs.stat(path.join(noteDir, 'meta.json'))
@@ -549,6 +503,7 @@ async function buildNotePayload(noteDir) {
         title: meta.name,
         relativeDir,
         entry: entryPath,
+        bundleBase: `/generated-notes/${slug}`,
         updatedAt: stats.mtime.toISOString(),
         sections: [rootSection, ...sectionPayloads],
     }
@@ -560,6 +515,7 @@ async function main() {
     }
 
     await ensureCleanDir(generatedRoot)
+    await ensureCleanDir(publicBundlesRoot)
 
     const noteDirs = await walkNoteDirs(notesRepoRoot)
     const notes = []

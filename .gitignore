@@ -7,6 +7,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 src/generated/
+public/generated-notes/
 .env
 
 node_modules
