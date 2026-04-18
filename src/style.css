@@ -1908,7 +1908,7 @@ html[lang="zh-CN"] .resume-award-item h3 {
     right: -36px;
     z-index: 1;
     min-width: 36px;
-    min-height: 112px;
+    min-height: 72px;
     border: 1px solid var(--border);
     border-left: none;
     border-radius: 0 10px 10px 0;
@@ -1929,9 +1929,12 @@ html[lang="zh-CN"] .resume-award-item h3 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1;
+    padding: 0;
+}
+
+.note-sidebar__toggle--desktop svg {
+    width: 15px;
+    height: 15px;
 }
 
 .note-sidebar__toggle:hover {
@@ -2149,7 +2152,7 @@ html[lang="zh-CN"] .resume-award-item h3 {
     }
 
     .note-sidebar.is-collapsed {
-        transform: translateX(calc(-100% + 36px)) translateY(-50%);
+        transform: translateX(calc(-100% + 35px)) translateY(-50%);
     }
 
     .note-sidebar.is-collapsed .note-toc {
@@ -2197,7 +2200,16 @@ html[lang="zh-CN"] .resume-award-item h3 {
     }
 
     .note-sidebar.is-collapsed .note-toc {
-        transform: translateY(-6px);
+        opacity: 1;
+        transform: none;
+        max-height: none;
+        padding: 14px 16px 12px;
+        border-width: 1px;
+        box-shadow: 0 10px 28px rgba(133, 145, 160, 0.12);
+    }
+
+    .note-sidebar.is-collapsed .note-toc__list {
+        display: none;
     }
 }
 

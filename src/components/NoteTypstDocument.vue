@@ -79,9 +79,10 @@ function syncSvgLayout() {
     }
 
     if (bbox && Number.isFinite(bbox.height) && bbox.height > 0) {
-        const padY = 6
-        const top = Math.max(0, bbox.y - padY)
-        const height = bbox.height + (bbox.y - top) + padY
+        const padTop = 2
+        const padBottom = 8
+        const top = Math.max(0, bbox.y - padTop)
+        const height = bbox.height + (bbox.y - top) + padBottom
         svg.setAttribute('viewBox', `0 ${top} ${pageWidth} ${height}`)
         svg.setAttribute('width', `${pageWidth}`)
         svg.setAttribute('height', `${height}`)
