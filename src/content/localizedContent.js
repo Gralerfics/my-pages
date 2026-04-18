@@ -44,6 +44,10 @@ export const localizedContent = {
                         { code: 'RO47013', name: 'Control in Human-Robot Interaction', grade: 'ongoing', link: 'https://studyguide.tudelft.nl/courses/study-guide/educations/19483', featured: true },
                         { code: 'RO47021', name: 'Intelligent Control Systems', grade: 'ongoing', link: 'https://studyguide.tudelft.nl/courses/study-guide/educations/21449' },
                         { code: 'SC42125', name: 'Model Predictive Control', grade: 'ongoing', link: 'https://studyguide.tudelft.nl/courses/study-guide/educations/19505' },
+                        { code: 'EE4740', name: 'Data Compression: Entropy and Sparsity Perspectives', grade: 'ongoing', link: 'https://studiegids.tudelft.nl/courses/study-guide/educations/14456' },
+                        { code: 'SC42110', name: 'Dynamic Programming and Stochastic Control', grade: 'ongoing', link: 'https://studiegids.tudelft.nl/courses/study-guide/educations/19504' },
+                        { code: 'SC42101', name: 'Networked and Distributed Control Systems', grade: 'ongoing', link: 'https://studiegids.tudelft.nl/courses/study-guide/educations/19503' },
+                        { code: 'DSAIT4115', name: 'Deep Reinforcement Learning', grade: 'ongoing', link: 'https://studiegids.tudelft.nl/courses/study-guide/educations/14811', featured: true },
                     ],
                 },
                 {
@@ -144,7 +148,7 @@ export const localizedContent = {
                 {
                     time: '2025 - 至今',
                     title: '电气工程硕士，信号与系统方向',
-                    organization: '代尔夫特理工大学',
+                    organization: '代尔夫特理工大学（TU Delft）',
                     notes: ['项目仍在进行中。'],
                     courses: [
                         { code: 'EE4C11', name: 'Systems Engineering', grade: '8.5', link: 'https://studyguide.tudelft.nl/courses/study-guide/educations/14833' },
@@ -157,12 +161,16 @@ export const localizedContent = {
                         { code: 'RO47013', name: 'Control in Human-Robot Interaction', grade: 'ongoing', link: 'https://studyguide.tudelft.nl/courses/study-guide/educations/19483', featured: true },
                         { code: 'RO47021', name: 'Intelligent Control Systems', grade: 'ongoing', link: 'https://studyguide.tudelft.nl/courses/study-guide/educations/21449' },
                         { code: 'SC42125', name: 'Model Predictive Control', grade: 'ongoing', link: 'https://studyguide.tudelft.nl/courses/study-guide/educations/19505' },
+                        { code: 'EE4740', name: 'Data Compression: Entropy and Sparsity Perspectives', grade: 'ongoing', link: 'https://studiegids.tudelft.nl/courses/study-guide/educations/14456' },
+                        { code: 'SC42110', name: 'Dynamic Programming and Stochastic Control', grade: 'ongoing', link: 'https://studiegids.tudelft.nl/courses/study-guide/educations/19504' },
+                        { code: 'SC42101', name: 'Networked and Distributed Control Systems', grade: 'ongoing', link: 'https://studiegids.tudelft.nl/courses/study-guide/educations/19503' },
+                        { code: 'DSAIT4115', name: 'Deep Reinforcement Learning', grade: 'ongoing', link: 'https://studiegids.tudelft.nl/courses/study-guide/educations/14811', featured: true },
                     ],
                 },
                 {
                     time: '2021 - 2025',
                     title: '信息工程学士',
-                    organization: '南方科技大学',
+                    organization: '南方科技大学（SUSTech）',
                     notes: ['以上非全部课程。'],
                     courses: [
                         { category: '', items: [{ name: '加权平均分', grade: '94.81 / 100' }] },

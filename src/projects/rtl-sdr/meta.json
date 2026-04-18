@@ -1,11 +1,23 @@
 {
-    "title": "RTL-SDR Project",
-    "subtitle": "Software-defined radio hardware design and validation",
+    "title": {
+        "en": "RTL-SDR Hardware Reproduction and Validation",
+        "zh": "RTL-SDR 硬件复现与验证"
+    },
+    "subtitle": {
+        "en": "Low-cost SDR hardware reproduction and FM receiving validation",
+        "zh": "低成本软件定义无线电接收机 RTL-SDR 硬件复现与验证项目"
+    },
     "time": "2023.01 - 2023.02",
     "groups": ["Embedded"],
-    "status": "Completed",
+    "status": {
+        "en": "Completed",
+        "zh": "已完成"
+    },
     "repo": "https://github.com/Gralerfics/RTL-SDR-Project",
-    "intro": "A low-cost software-defined radio receiver project based on RTL-SDR and validated with FM reception.",
+    "intro": {
+        "en": "A low-cost software-defined radio receiver project based on RTL-SDR and validated with FM reception.",
+        "zh": "手动实现低成本软件定义无线电接收机 RTL-SDR 的硬件设计与验证流程。"
+    },
     "tags": ["SDR", "RF", "Signal Processing"],
     "priority": 650
 }
