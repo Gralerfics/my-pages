@@ -39,6 +39,8 @@ function withBaseUrl(value) {
 
 function getFontUrls() {
     return [
+        withBaseUrl('/typst-fonts/simkai.ttf'),
+        withBaseUrl('/typst-fonts/simsun.ttc'),
         withBaseUrl('/typst-fonts/msyh.ttc'),
         withBaseUrl('/typst-fonts/simhei.ttf'),
     ]

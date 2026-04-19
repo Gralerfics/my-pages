@@ -938,6 +938,114 @@ function extractReferencedLabels(lines) {
     return labels
 }
 
+function countParenDelta(line) {
+    let delta = 0
+    let inString = false
+    let escaped = false
+
+    for (let index = 0; index < line.length; index += 1) {
+        const char = line[index]
+        const nextChar = index + 1 < line.length ? line[index + 1] : ''
+
+        if (!inString && char === '/' && nextChar === '/') {
+            break
+        }
+
+        if (inString) {
+            if (escaped) {
+                escaped = false
+                continue
+            }
+
+            if (char === '\\') {
+                escaped = true
+                continue
+            }
+
+            if (char === '"') {
+                inString = false
+            }
+            continue
+        }
+
+        if (char === '"') {
+            inString = true
+            continue
+        }
+
+        if (char === '(') {
+            delta += 1
+            continue
+        }
+
+        if (char === ')') {
+            delta -= 1
+        }
+    }
+
+    return delta
+}
+
+async function collectViewTypographySetup(noteDir) {
+    const candidatePaths = ['view.typ', 'view_en.typ']
+
+    for (const candidate of candidatePaths) {
+        const fullPath = path.join(noteDir, candidate)
+        if (!await exists(fullPath)) {
+            continue
+        }
+
+        const lines = splitLines(await fs.readFile(fullPath, 'utf8'))
+        const result = []
+        let capturingTextSetup = false
+        let parenDepth = 0
+
+        for (const line of lines) {
+            const trimmed = line.trim()
+
+            if (!capturingTextSetup && trimmed.startsWith('#show: ilm.with')) {
+                break
+            }
+
+            if (capturingTextSetup) {
+                result.push(line)
+                parenDepth += countParenDelta(line)
+                if (parenDepth <= 0) {
+                    capturingTextSetup = false
+                    parenDepth = 0
+                }
+                continue
+            }
+
+            if (/^#import\s+"@preview\/cuti:[^"]+":\s*show-cn-fakebold\s*$/.test(trimmed)) {
+                result.push(trimmed)
+                continue
+            }
+
+            if (trimmed === '#show: show-cn-fakebold') {
+                result.push(trimmed)
+                continue
+            }
+
+            if (trimmed.startsWith('#set text(')) {
+                capturingTextSetup = true
+                parenDepth = countParenDelta(line)
+                result.push(line)
+                if (parenDepth <= 0) {
+                    capturingTextSetup = false
+                    parenDepth = 0
+                }
+            }
+        }
+
+        if (result.length) {
+            return result
+        }
+    }
+
+    return []
+}
+
 async function copyNoteFiles(noteDir, bundleDir) {
     const filesDir = path.join(bundleDir, 'files')
     const noteFiles = await collectFiles(noteDir)
@@ -1145,6 +1253,7 @@ async function buildNotePayload(noteDir) {
         })
     }
     const noteGlobalSetupLines = collectLeadingRootSetup(parsed.entries)
+    const viewTypographySetupLines = await collectViewTypographySetup(noteDir)
     const referenceRegistry = buildReferenceRegistry(
         parsed.entries,
         allSections,
@@ -1164,6 +1273,7 @@ async function buildNotePayload(noteDir) {
         const rawBodyLines = renderableBodyLines(bodyEntries)
         const bodySetup = [
             '#set page(width: 600pt, height: auto, margin: 0pt)',
+            ...viewTypographySetupLines,
             ...noteGlobalSetupLines,
             ...section.inheritedSetupLines,
             ...section.prependedSetupLines,
