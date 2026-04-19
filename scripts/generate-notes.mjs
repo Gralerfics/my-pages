@@ -63,6 +63,21 @@ function filterSetupLines(lines) {
     return lines.filter((line) => !line.trim().startsWith('#hide['))
 }
 
+function dedupeLines(lines) {
+    const seen = new Set()
+    const result = []
+
+    for (const line of lines) {
+        if (seen.has(line)) {
+            continue
+        }
+        seen.add(line)
+        result.push(line)
+    }
+
+    return result
+}
+
 function parseHeading(line) {
     const match = /^(=+)\s+(.*)$/.exec(line)
     if (!match) {
@@ -244,7 +259,8 @@ async function parseTypstFile(noteDir, relativeFilePath, state) {
         bufferedLines = []
     }
 
-    for (const line of lines) {
+    for (const [index, line] of lines.entries()) {
+        const lineNumber = index + 1
         const trimmed = line.trim()
         const includeTarget = parseInclude(line)
         if (includeTarget) {
@@ -292,6 +308,7 @@ async function parseTypstFile(noteDir, relativeFilePath, state) {
             rawTitle: heading.rawTitle,
             anchor: heading.anchor,
             headingLine: heading.line,
+            startLine: lineNumber,
             sourcePath: normalizedPath,
             entries: [],
         }
@@ -424,6 +441,16 @@ function renderableBodyLines(entries) {
     return entries.flatMap((entry) => entry.lines.map((line) => rewriteLinePaths(line, entry.sourcePath)))
 }
 
+function extractImportLines(lines) {
+    return lines
+        .filter((line) => line.trim().startsWith('#import '))
+        .map((line) => line.trim())
+}
+
+function stripImportLines(lines) {
+    return lines.filter((line) => !line.trim().startsWith('#import '))
+}
+
 function createReferenceDisplay(label, counters) {
     if (label.startsWith('sec:')) {
         return null
@@ -455,6 +482,66 @@ function extractLabelsFromLines(lines) {
     }
 
     return labels
+}
+
+function findTypstReferenceMatches(line) {
+    const matches = []
+    let inString = false
+    let escaped = false
+
+    for (let index = 0; index < line.length; index += 1) {
+        const char = line[index]
+
+        if (inString) {
+            if (escaped) {
+                escaped = false
+                continue
+            }
+
+            if (char === '\\') {
+                escaped = true
+                continue
+            }
+
+            if (char === '"') {
+                inString = false
+            }
+            continue
+        }
+
+        if (char === '"') {
+            inString = true
+            continue
+        }
+
+        if (char !== '@') {
+            continue
+        }
+
+        const previous = index === 0 ? '' : line[index - 1]
+        if (previous && /[\w]/.test(previous)) {
+            continue
+        }
+
+        let end = index + 1
+        while (end < line.length && /[A-Za-z0-9:_-]/.test(line[end])) {
+            end += 1
+        }
+
+        if (end === index + 1) {
+            continue
+        }
+
+        matches.push({
+            start: index,
+            end,
+            prefix: previous && !/[\w]/.test(previous) ? previous : '',
+            label: line.slice(index + 1, end),
+            prefixIndex: previous && !/[\w]/.test(previous) ? index - 1 : index,
+        })
+    }
+
+    return matches
 }
 
 function isDisplayEquationDelimiterLine(trimmedLine) {
@@ -806,14 +893,32 @@ function downgradeUnresolvedRefs(lines, availableLabels, referenceRegistry) {
             return line
         }
 
-        return line.replace(/(^|[^\w])@([A-Za-z0-9:_-]+)/g, (match, prefix, label) => {
+        const matches = findTypstReferenceMatches(line)
+        if (!matches.length) {
+            return line
+        }
+
+        let result = ''
+        let cursor = 0
+
+        for (const match of matches) {
+            const { prefix, label, prefixIndex, end } = match
+
+            result += line.slice(cursor, prefixIndex)
+
             if (availableLabels.has(label)) {
-                return match
+                result += `${prefix}@${label}`
+            }
+            else {
+                const display = referenceRegistry.get(label) ?? `@${label}`
+                result += `${prefix}#text("${escapeTypstString(display)}")`
             }
 
-            const display = referenceRegistry.get(label) ?? `@${label}`
-            return `${prefix}#text("${escapeTypstString(display)}")`
-        })
+            cursor = end
+        }
+
+        result += line.slice(cursor)
+        return result
     })
 }
 
@@ -825,10 +930,8 @@ function extractReferencedLabels(lines) {
             continue
         }
 
-        for (const match of line.matchAll(/(^|[^\w])@([A-Za-z0-9:_-]+)/g)) {
-            if (match[2]) {
-                labels.add(match[2])
-            }
+        for (const match of findTypstReferenceMatches(line)) {
+            labels.add(match.label)
         }
     }
 
@@ -847,6 +950,153 @@ async function copyNoteFiles(noteDir, bundleDir) {
     }
 }
 
+async function collectReusableDefinitionsBeforeSection(noteDir, sourcePath, startLine) {
+    if (!startLine || startLine <= 1) {
+        return []
+    }
+
+    const lines = splitLines(await fs.readFile(path.join(noteDir, sourcePath), 'utf8'))
+    const result = []
+    let captureBuffer = []
+    let squareDepth = 0
+    let parenDepth = 0
+    let braceDepth = 0
+    let inString = false
+    let escaped = false
+    let hasEquals = false
+    let captureMode = 'generic'
+
+    const resetCaptureState = () => {
+        captureBuffer = []
+        squareDepth = 0
+        parenDepth = 0
+        braceDepth = 0
+        inString = false
+        escaped = false
+        hasEquals = false
+        captureMode = 'generic'
+    }
+
+    const updateStateFromLine = (line) => {
+        let inLineComment = false
+
+        for (let index = 0; index < line.length; index += 1) {
+            const char = line[index]
+            const nextChar = index + 1 < line.length ? line[index + 1] : ''
+
+            if (!inString && char === '/' && nextChar === '/') {
+                inLineComment = true
+            }
+
+            if (inLineComment) {
+                break
+            }
+
+            if (inString) {
+                if (escaped) {
+                    escaped = false
+                    continue
+                }
+
+                if (char === '\\') {
+                    escaped = true
+                    continue
+                }
+
+                if (char === '"') {
+                    inString = false
+                }
+                continue
+            }
+
+            if (char === '"') {
+                inString = true
+                continue
+            }
+
+            if (char === '=') {
+                hasEquals = true
+                continue
+            }
+
+            if (char === '[') {
+                squareDepth += 1
+                continue
+            }
+
+            if (char === ']') {
+                squareDepth = Math.max(0, squareDepth - 1)
+                continue
+            }
+
+            if (char === '(') {
+                parenDepth += 1
+                continue
+            }
+
+            if (char === ')') {
+                parenDepth = Math.max(0, parenDepth - 1)
+                continue
+            }
+
+            if (char === '{') {
+                braceDepth += 1
+                continue
+            }
+
+            if (char === '}') {
+                braceDepth = Math.max(0, braceDepth - 1)
+            }
+        }
+    }
+
+    const captureIsComplete = (trimmed) => {
+        if (!hasEquals || inString) {
+            return false
+        }
+
+        if (captureMode === 'display-math') {
+            return /^\$\s*(?:<[^>]+>)?\s*;?\s*$/.test(trimmed)
+        }
+
+        return (
+            squareDepth === 0
+            && parenDepth === 0
+            && braceDepth === 0
+            && (
+                trimmed.endsWith(';')
+                || trimmed.endsWith(']')
+                || trimmed.endsWith(')')
+                || trimmed.endsWith('}')
+                || !trimmed.includes('=')
+            )
+        )
+    }
+
+    for (const line of lines.slice(0, startLine - 1)) {
+        const trimmed = line.trim()
+
+        if (!captureBuffer.length && !trimmed.startsWith('#let ')) {
+            continue
+        }
+
+        if (!captureBuffer.length) {
+            resetCaptureState()
+            captureMode = /=\s*\$(?:\s|$)/.test(trimmed) ? 'display-math' : 'generic'
+        }
+
+        captureBuffer.push(rewriteLinePaths(line, sourcePath))
+        updateStateFromLine(line)
+
+        if (captureIsComplete(trimmed)) {
+            result.push(...captureBuffer)
+            resetCaptureState()
+        }
+    }
+
+    return result
+}
+
 async function writeSectionSource(bundleDir, section, sourceLines) {
     const sourceDir = path.posix.dirname(section.sourcePath)
     const relativeEntryPath = normalizeSlashes(path.posix.join(
@@ -855,8 +1105,11 @@ async function writeSectionSource(bundleDir, section, sourceLines) {
         createSectionFileName(section),
     ))
     const filesystemPath = path.join(bundleDir, relativeEntryPath.replace(/^\//, ''))
+    const normalizedLines = sourceLines.map((line) =>
+        line.trim().startsWith('#import ') ? line.trim() : line,
+    )
     await fs.mkdir(path.dirname(filesystemPath), { recursive: true })
-    await fs.writeFile(filesystemPath, `${sourceLines.join('\n').trim()}\n`, 'utf8')
+    await fs.writeFile(filesystemPath, `${normalizedLines.join('\n').trim()}\n`, 'utf8')
     return relativeEntryPath
 }
 
@@ -899,33 +1152,42 @@ async function buildNotePayload(noteDir) {
     )
     const sectionPayloads = []
     for (const section of allSections) {
-        const bodySetup = [
-            '#set page(width: 600pt, height: auto, margin: 0pt)',
-            ...noteGlobalSetupLines,
-            ...section.inheritedSetupLines,
-            ...section.prependedSetupLines,
-            ...collectSetupLines(section.leadEntries),
-            `#counter(math.equation).update(${section.equationOffset ?? 0})`,
-            `#counter(figure.where(kind: image)).update(${section.figureOffset ?? 0})`,
-            `#counter(figure.where(kind: table)).update(${section.tableOffset ?? 0})`,
-        ]
+        const reusableDefinitionLines = await collectReusableDefinitionsBeforeSection(
+            noteDir,
+            section.sourcePath,
+            section.startLine,
+        )
         const bodyEntries = [
             ...section.leadEntries,
             ...section.tailEntries,
         ]
         const rawBodyLines = renderableBodyLines(bodyEntries)
+        const bodySetup = [
+            '#set page(width: 600pt, height: auto, margin: 0pt)',
+            ...noteGlobalSetupLines,
+            ...section.inheritedSetupLines,
+            ...section.prependedSetupLines,
+            ...reusableDefinitionLines,
+            ...collectSetupLines(section.leadEntries),
+            ...extractImportLines(rawBodyLines),
+            `#counter(math.equation).update(${section.equationOffset ?? 0})`,
+            `#counter(figure.where(kind: image)).update(${section.figureOffset ?? 0})`,
+            `#counter(figure.where(kind: table)).update(${section.tableOffset ?? 0})`,
+        ]
+        const normalizedBodySetup = bodySetup
+        const contentBodyLines = stripImportLines(rawBodyLines)
         const availableLabels = new Set([
             ...(section.anchor ? [section.anchor] : []),
-            ...extractLabelsFromLines(bodySetup),
-            ...extractLabelsFromLines(rawBodyLines),
+            ...extractLabelsFromLines(normalizedBodySetup),
+            ...extractLabelsFromLines(contentBodyLines),
         ])
-        const referencedLabels = extractReferencedLabels(rawBodyLines)
+        const referencedLabels = extractReferencedLabels(contentBodyLines)
         const labelStubLines = allSections
             .filter((candidate) => candidate.anchor && referencedLabels.has(candidate.anchor))
             .map((candidate) => `#hide[${candidate.headingLine}]`)
-        const bodyLines = downgradeUnresolvedRefs(rawBodyLines, availableLabels, referenceRegistry)
+        const bodyLines = downgradeUnresolvedRefs(contentBodyLines, availableLabels, referenceRegistry)
         const sectionSourceLines = [
-            ...bodySetup,
+            ...normalizedBodySetup,
             ...bodyLines,
             ...labelStubLines,
         ]

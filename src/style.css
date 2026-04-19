@@ -2055,6 +2055,10 @@ html[lang="zh-CN"] .resume-award-item h3 {
     margin-top: 28px;
 }
 
+.note-section-nav--bottom.is-next-only {
+    grid-template-columns: minmax(0, 1fr);
+}
+
 .note-section-nav__button {
     min-width: 0;
 }
@@ -2075,6 +2079,10 @@ html[lang="zh-CN"] .resume-award-item h3 {
 
 .note-section-nav__spacer {
     width: 100%;
+}
+
+.note-section-nav--bottom.is-next-only .note-section-nav__spacer {
+    display: none;
 }
 
 .note-rendered-content {

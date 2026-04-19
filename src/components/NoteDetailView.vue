@@ -32,11 +32,15 @@ const currentSectionIndex = computed(() =>
 const previousSection = computed(() =>
     currentSectionIndex.value > 0 ? orderedSections.value[currentSectionIndex.value - 1] : null,
 )
-const nextSection = computed(() =>
-    currentSectionIndex.value >= 0 && currentSectionIndex.value < orderedSections.value.length - 1
+const nextSection = computed(() => {
+    if (!props.currentSection.path.length) {
+        return orderedSections.value[0] ?? null
+    }
+
+    return currentSectionIndex.value >= 0 && currentSectionIndex.value < orderedSections.value.length - 1
         ? orderedSections.value[currentSectionIndex.value + 1]
-        : null,
-)
+        : null
+})
 
 function isActive(section) {
     return section.pathSlug === props.currentSection.pathSlug
@@ -66,6 +70,11 @@ function splitSectionLabel(displayTitle) {
         number: match[1],
         title: match[2],
     }
+}
+
+function formatSectionDisplayTitle(displayTitle) {
+    const { number, title } = splitSectionLabel(displayTitle)
+    return number ? `${number}. ${title}` : title
 }
 
 function openRoot() {
@@ -197,7 +206,7 @@ onBeforeUnmount(() => {
                             :style="{ '--note-level': section.path.length }"
                             @click="openSection(section.number)"
                         >
-                            {{ section.displayTitle }}
+                            {{ formatSectionDisplayTitle(section.displayTitle) }}
                         </button>
                     </div>
                 </div>
@@ -233,6 +242,7 @@ onBeforeUnmount(() => {
                 <div
                     v-if="previousSection || nextSection || currentSection.path.length"
                     class="note-section-nav note-section-nav--bottom"
+                    :class="{ 'is-next-only': !previousSection && !currentSection.path.length && nextSection }"
                 >
                     <button
                         v-if="previousSection || currentSection.path.length"

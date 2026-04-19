@@ -45,7 +45,7 @@ const messages = {
             copy: 'Copy',
             copied: 'Copied',
             copyFailed: 'Failed',
-            typstError: 'Failed to render equation',
+            typstError: 'Failed to render Typst contents',
         },
         home: {
             eyebrow: 'Portfolio',

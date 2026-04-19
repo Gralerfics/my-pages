@@ -54,7 +54,7 @@ self.onmessage = async (event) => {
         self.postMessage({
             id,
             ok: false,
-            error: error instanceof Error ? error.message : 'Failed to render equation',
+            error: error instanceof Error ? error.message : 'Failed to render Typst contents',
         })
     }
 }
