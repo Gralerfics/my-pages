@@ -11,6 +11,7 @@ const notesRepoRoot = path.resolve(process.env.NOTES_REPO_ROOT || defaultNotesRe
 const generatedRoot = path.join(projectRoot, 'src', 'generated', 'notes')
 const publicBundlesRoot = path.join(projectRoot, 'public', 'generated-notes')
 const requireTypstCli = process.env.REQUIRE_TYPST_CLI === 'true'
+const noteTypstPageWidth = '450pt'
 
 function normalizeSlashes(value) {
     return value.replace(/\\/g, '/')
@@ -1272,7 +1273,7 @@ async function buildNotePayload(noteDir) {
         ]
         const rawBodyLines = renderableBodyLines(bodyEntries)
         const bodySetup = [
-            '#set page(width: 600pt, height: auto, margin: 0pt)',
+            `#set page(width: ${noteTypstPageWidth}, height: auto, margin: 0pt)`,
             ...viewTypographySetupLines,
             ...noteGlobalSetupLines,
             ...section.inheritedSetupLines,
