@@ -134,7 +134,7 @@ watch(
             <NotesView
                 v-else-if="routeName === 'notes'"
                 :notes-index="notesIndex"
-                @open-note="(noteSlug) => navigate({ noteSlug, sectionPath: '' })"
+                @open-note="(noteSlug) => navigate({ noteSlug, sectionId: '' })"
             />
 
             <NoteDetailView

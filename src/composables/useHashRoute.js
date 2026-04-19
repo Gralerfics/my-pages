@@ -52,7 +52,8 @@ export function useHashRoute() {
     const navigate = (target, extra = []) => {
         if (typeof target === 'object' && target !== null) {
             if (target.noteSlug) {
-                const sectionPath = target.sectionPath ? `/${target.sectionPath}` : ''
+                const sectionId = target.sectionId ?? target.sectionPath ?? ''
+                const sectionPath = sectionId ? `/${sectionId}` : ''
                 window.location.hash = `/notes/${target.noteSlug}${sectionPath}`
                 return
             }

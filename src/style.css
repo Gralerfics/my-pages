@@ -2006,7 +2006,7 @@ html[lang="zh-CN"] .resume-award-item h3 {
 .note-toc__item {
     display: block;
     width: 100%;
-    padding: 5px 8px 5px calc(8px + (var(--note-level, 0) - 1) * 10px);
+    padding: 5px 8px 5px calc(8px + (var(--note-level, 0) - 1) * 16px);
     border: 1px solid transparent;
     border-radius: 6px;
     color: var(--text-muted);
@@ -2035,6 +2035,46 @@ html[lang="zh-CN"] .resume-award-item h3 {
     display: grid;
     gap: 18px;
     min-width: 0;
+}
+
+.note-title__number {
+    margin-right: 0.2em;
+}
+
+.note-section-nav {
+    display: grid;
+    align-items: center;
+    gap: 12px;
+}
+
+.note-section-nav--bottom {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.note-section-nav--bottom {
+    margin-top: 28px;
+}
+
+.note-section-nav__button {
+    min-width: 0;
+}
+
+.note-section-nav__button svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex: 0 0 auto;
+}
+
+.note-section-nav__button--prev {
+    justify-self: start;
+}
+
+.note-section-nav__button--next {
+    justify-self: end;
+}
+
+.note-section-nav__spacer {
+    width: 100%;
 }
 
 .note-rendered-content {
@@ -2276,6 +2316,19 @@ html[lang="zh-CN"] .resume-award-item h3 {
     }
 
     .note-sidebar.is-collapsed .note-toc__list {
+        display: none;
+    }
+
+    .note-section-nav--bottom {
+        grid-template-columns: 1fr;
+    }
+
+    .note-section-nav__button--prev,
+    .note-section-nav__button--next {
+        justify-self: stretch;
+    }
+
+    .note-section-nav__spacer {
         display: none;
     }
 }

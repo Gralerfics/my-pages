@@ -68,7 +68,7 @@ const messages = {
         notes: {
             eyebrow: 'Notes',
             title: 'Notes index',
-            intro: 'Structured notes generated from Typst sources.',
+            intro: 'Part of my notes in Typst.',
             browseEyebrow: 'Browse',
             directoryTitle: 'Directory',
             empty: 'No notes have been generated yet.',
@@ -82,6 +82,10 @@ const messages = {
             childSectionLabel: 'Child section',
             openSection: 'Open section',
             sectionCount: '{count} top-level sections',
+            backToParent: 'Back to parent',
+            backToNote: 'Back to note',
+            previousSection: 'Previous section',
+            nextSection: 'Next section',
         },
         projectDetail: {
             eyebrow: 'Project',
@@ -164,7 +168,7 @@ const messages = {
         notes: {
             eyebrow: 'Notes',
             title: '笔记索引',
-            intro: '由 Typst 源文件解析生成的结构化笔记。',
+            intro: '使用 Typst 撰写的部分笔记。',
             browseEyebrow: 'Browse',
             directoryTitle: '目录',
             empty: '当前还没有生成任何笔记。',
@@ -178,6 +182,10 @@ const messages = {
             childSectionLabel: '子节',
             openSection: '进入该节',
             sectionCount: '{count} 个一级小节',
+            backToParent: '返回上一级',
+            backToNote: '返回笔记首页',
+            previousSection: '上一节',
+            nextSection: '下一节',
         },
         projectDetail: {
             eyebrow: 'Project',

@@ -30,7 +30,6 @@ const { t } = useI18n()
         class="note-index-card"
         @click="emit('open-note', entry.slug)"
     >
-        <p class="note-index-card__path">{{ entry.relativeDir }}</p>
         <h3>{{ entry.title }}</h3>
         <p class="note-index-card__meta">
             {{ t('notes.sectionCount', { count: entry.topSectionCount }) }}

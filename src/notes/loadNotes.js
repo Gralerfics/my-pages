@@ -49,5 +49,12 @@ export function findNoteBySlug(slug) {
 }
 
 export function findSectionByPathSlug(note, pathSlug = '') {
-    return note?.sections.find((section) => section.pathSlug === pathSlug) ?? note?.sections[0] ?? null
+    return (
+        note?.sections.find((section) =>
+            section.pathSlug === pathSlug
+            || section.number === pathSlug,
+        )
+        ?? note?.sections[0]
+        ?? null
+    )
 }
