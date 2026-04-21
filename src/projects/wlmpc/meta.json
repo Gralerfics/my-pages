@@ -1,0 +1,27 @@
+{
+    "title": {
+        "en": "Wheel-Legged Robot MPC in MuJoCo",
+        "zh": "轮足机器人 MPC 运动控制稳定性分析与仿真"
+    },
+    "subtitle": {
+        "en": "Reduced-order modeling, constrained regulation, and offset-free tracking on TRON1 using an MPC controller.",
+        "zh": "TRON1 轮腿机器人的低阶建模、MPC 姿态控制与跟踪"
+    },
+    "time": "2026.04",
+    "groups": ["Robotics"],
+    "status": {
+        "en": "Completed",
+        "zh": "已完成"
+    },
+    "collaboration": {
+        "en": "Collaborative Project",
+        "zh": "合作项目"
+    },
+    "repo": "https://github.com/Gralerfics/TUD-SC42125-Model-Predictive-Control-Project",
+    "intro": {
+        "en": "An MPC course project on the TRON1 wheel-legged robot. The work covers reduced-order modeling, constrained regulation MPC with terminal ingredients, and an offset-free tracking extension validated in MuJoCo.",
+        "zh": "模型预测控制课程项，围绕 TRON1 轮腿机器人实现了降阶建模、带终端项与终端集的约束 MPC，以及基于扰动估计的无静差跟踪扩展，并在 MuJoCo 中完成验证。"
+    },
+    "tags": ["MPC", "MuJoCo", "Stability Analysis"],
+    "priority": 880
+}
