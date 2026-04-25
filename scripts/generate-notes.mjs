@@ -11,7 +11,7 @@ const notesRepoRoot = path.resolve(process.env.NOTES_REPO_ROOT || defaultNotesRe
 const generatedRoot = path.join(projectRoot, 'src', 'generated', 'notes')
 const publicBundlesRoot = path.join(projectRoot, 'public', 'generated-notes')
 const requireTypstCli = process.env.REQUIRE_TYPST_CLI === 'true'
-const noteTypstPageWidth = '450pt'
+const noteTypstPageWidth = '550pt'
 
 function normalizeSlashes(value) {
     return value.replace(/\\/g, '/')
@@ -55,6 +55,7 @@ function isSetupOnly(lines) {
             || trimmed.startsWith('#import ')
             || trimmed.startsWith('#set ')
             || trimmed.startsWith('#show ')
+            || trimmed.startsWith('#show:')
             || trimmed.startsWith('#let ')
         )
     })
@@ -785,9 +786,9 @@ function buildReferenceRegistry(entries, sections, equationNumbers = new Map()) 
             return
         }
 
-        const nextDisplay = `Equation (${equationNumber})`
+        const nextDisplay = `Equation ${equationNumber}`
         const currentDisplay = registry.get(label)
-        const currentMatch = /^Equation \((\d+)\)$/.exec(currentDisplay || '')
+        const currentMatch = /^Equation (\d+)$/.exec(currentDisplay || '')
         const currentNumber = currentMatch ? Number(currentMatch[1]) : 0
         if (equationNumber > currentNumber) {
             registry.set(label, nextDisplay)
@@ -850,7 +851,7 @@ function buildReferenceRegistry(entries, sections, equationNumbers = new Map()) 
                         if (label.startsWith('equ:')) {
                             const equationNumber = equationNumbers.get(label)?.equation ?? 0
                             if (equationNumber > 0) {
-                                registry.set(label, `Equation (${equationNumber})`)
+                                registry.set(label, `Equation ${equationNumber}`)
                             }
                             continue
                         }
