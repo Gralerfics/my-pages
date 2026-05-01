@@ -26,9 +26,9 @@ function getSnippet(bundleBase, fontUrls) {
 }
 
 self.onmessage = async (event) => {
-    const { id, bundleBase, entryPath, fontUrls } = event.data ?? {}
+    const { id, type = 'render', bundleBase, entryPath, fontUrls } = event.data ?? {}
 
-    if (!id || !bundleBase || !entryPath || !Array.isArray(fontUrls)) {
+    if (!id || !bundleBase || !Array.isArray(fontUrls) || (type === 'render' && !entryPath)) {
         self.postMessage({
             id,
             ok: false,
@@ -39,6 +39,17 @@ self.onmessage = async (event) => {
 
     try {
         configureTypstWasm()
+
+        if (type === 'preload') {
+            await Promise.allSettled(fontUrls.map((fontUrl) => fetch(fontUrl, { cache: 'force-cache' })))
+            getSnippet(bundleBase, fontUrls)
+            self.postMessage({
+                id,
+                ok: true,
+            })
+            return
+        }
+
         const { snippet } = getSnippet(bundleBase, fontUrls)
         const svg = await snippet.svg({
             mainFilePath: entryPath,

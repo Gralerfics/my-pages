@@ -1,6 +1,7 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from '../i18n/useI18n'
+import { preloadNoteTypst } from '../typst/noteTypstRenderer'
 import NoteTypstDocument from './NoteTypstDocument.vue'
 
 const props = defineProps({
@@ -130,6 +131,21 @@ onMounted(async () => {
     })
     window.addEventListener('keydown', onKeydown)
 })
+
+watch(
+    () => [
+        props.note.bundleBase,
+        props.currentSection.typstEntry,
+        nextSection.value?.typstEntry,
+    ],
+    () => {
+        preloadNoteTypst({
+            bundleBase: props.note.bundleBase,
+            entryPath: nextSection.value?.typstEntry ?? props.currentSection.typstEntry,
+        })
+    },
+    { immediate: true },
+)
 
 onBeforeUnmount(() => {
     window.removeEventListener('keydown', onKeydown)

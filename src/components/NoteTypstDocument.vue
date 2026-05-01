@@ -1,6 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from '../i18n/useI18n'
+import { getCachedNoteSvg, renderNoteTypst } from '../typst/noteTypstRenderer'
 
 const props = defineProps({
     bundleBase: {
@@ -19,32 +20,6 @@ const renderError = ref('')
 const isLoading = ref(false)
 const rootEl = ref(null)
 let resizeObserver = null
-const baseUrl = import.meta.env.BASE_URL || '/'
-let workerRequestId = 0
-
-const renderWorker = new Worker(
-    new URL('../workers/typstRenderWorker.js', import.meta.url),
-    { type: 'module' },
-)
-
-function withBaseUrl(value) {
-    if (!value || /^https?:\/\//.test(value)) {
-        return value
-    }
-
-    const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
-    const normalizedValue = value.replace(/^\/+/, '')
-    return `${normalizedBase}${normalizedValue}`
-}
-
-function getFontUrls() {
-    return [
-        withBaseUrl('/typst-fonts/simkai.ttf'),
-        withBaseUrl('/typst-fonts/simsun.ttc'),
-        withBaseUrl('/typst-fonts/msyh.ttc'),
-        withBaseUrl('/typst-fonts/simhei.ttf'),
-    ]
-}
 
 function sanitizeSvg(svg) {
     return svg
@@ -154,8 +129,18 @@ watch(
         }
 
         const token = ++renderToken
+        const cachedSvg = getCachedNoteSvg(props.bundleBase, props.entryPath)
+        if (cachedSvg) {
+            svgMarkup.value = sanitizeSvg(cachedSvg)
+            renderError.value = ''
+            isLoading.value = false
+            await nextTick()
+            normalizeSvgViewBox()
+            applySvgWidth()
+            return
+        }
+
         isLoading.value = true
-        svgMarkup.value = ''
         renderError.value = ''
 
         try {
@@ -166,39 +151,9 @@ watch(
                 return
             }
 
-            const requestId = ++workerRequestId
-            const svg = await new Promise((resolve, reject) => {
-                const handleMessage = (event) => {
-                    const payload = event.data ?? {}
-                    if (payload.id !== requestId) {
-                        return
-                    }
-
-                    renderWorker.removeEventListener('message', handleMessage)
-                    renderWorker.removeEventListener('error', handleError)
-
-                    if (payload.ok) {
-                        resolve(payload.svg)
-                        return
-                    }
-
-                    reject(new Error(payload.error || t('common.typstError')))
-                }
-
-                const handleError = (event) => {
-                    renderWorker.removeEventListener('message', handleMessage)
-                    renderWorker.removeEventListener('error', handleError)
-                    reject(new Error(event.message || t('common.typstError')))
-                }
-
-                renderWorker.addEventListener('message', handleMessage)
-                renderWorker.addEventListener('error', handleError, { once: true })
-                renderWorker.postMessage({
-                    id: requestId,
-                    bundleBase: props.bundleBase,
-                    entryPath: props.entryPath,
-                    fontUrls: getFontUrls(),
-                })
+            const svg = await renderNoteTypst({
+                bundleBase: props.bundleBase,
+                entryPath: props.entryPath,
             })
 
             if (token !== renderToken) {
