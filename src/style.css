@@ -414,6 +414,7 @@ img {
 
 .hero-panel,
 .project-hero,
+.recipes-hero,
 .resume-hero,
 .contact-strip {
     display: grid;
@@ -422,11 +423,13 @@ img {
 }
 
 .hero-panel,
-.project-hero {
+.project-hero,
+.recipes-hero {
     grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.95fr);
 }
 
-.hero-panel {
+.hero-panel,
+.recipes-hero {
     grid-template-columns: 1fr;
 }
 
@@ -483,6 +486,15 @@ h1 {
 }
 
 html[lang="zh-CN"] .project-hero h1 {
+    font-family: var(--font-sans);
+    font-size: clamp(2.15rem, 5vw, 3.4rem);
+    line-height: 1.18;
+    letter-spacing: 0.01em;
+    font-weight: 600;
+}
+
+html[lang="zh-CN"] .page-recipes h1,
+html[lang="zh-CN"] .page-recipe h1 {
     font-family: var(--font-sans);
     font-size: clamp(2.15rem, 5vw, 3.4rem);
     line-height: 1.18;
@@ -713,6 +725,10 @@ html[lang="zh-CN"] .resume-hero__title {
     background: rgba(255, 255, 255, 0.54);
 }
 
+.recipes-toolbar {
+    padding: 14px 16px;
+}
+
 .projects-search {
     display: grid;
     gap: 10px;
@@ -829,6 +845,14 @@ html[lang="zh-CN"] .resume-hero__title {
 
 .home-preview-actions {
     margin-top: 14px;
+}
+
+.recipes-grid {
+    align-items: start;
+}
+
+.recipe-card__thumb {
+    aspect-ratio: 4 / 3;
 }
 
 .section-card,
@@ -1668,6 +1692,48 @@ html[lang="zh-CN"] .resume-award-item h3 {
 
 .project-article__section p + p {
     margin-top: 0.825em;
+}
+
+.recipe-page-content {
+    display: grid;
+    gap: 34px;
+}
+
+.page-project .recipe-page-content .editorial-section:first-of-type .section-body--boxed {
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+}
+
+.recipe-summary-panel {
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.52);
+}
+
+.recipe-summary-panel h2 {
+    font-size: 1.25rem;
+}
+
+.recipe-steps,
+.recipe-tips {
+    display: grid;
+    gap: 10px;
+    margin: 12px 0 0;
+    padding-left: 1.25rem;
+}
+
+.recipe-steps li,
+.recipe-tips li {
+    padding-left: 0.3rem;
+}
+
+.recipe-ingredients-panel {
+    background: rgba(255, 255, 255, 0.58);
+}
+
+.recipe-result-grid.project-media-grid--three {
+    padding-inline: 0;
 }
 
 .project-media {
@@ -2707,6 +2773,7 @@ html[lang="zh-CN"] .resume-award-item h3 {
 @media (max-width: 900px) {
     .hero-panel,
     .project-hero,
+    .recipes-hero,
     .resume-hero,
     .contact-strip,
     .split-section,

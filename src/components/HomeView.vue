@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed } from 'vue'
+import { useResponsiveColumns } from '../composables/useResponsiveColumns'
 import { useI18n } from '../i18n/useI18n'
 
 const props = defineProps({
@@ -24,41 +25,8 @@ const props = defineProps({
 const emit = defineEmits(['open-projects', 'open-project', 'open-resume'])
 const { t } = useI18n()
 
-const columnCount = ref(1)
-
-const syncColumnCount = () => {
-  if (window.innerWidth >= 900) {
-    columnCount.value = 3
-    return
-  }
-
-  if (window.innerWidth >= 560) {
-    columnCount.value = 2
-    return
-  }
-
-  columnCount.value = 1
-}
-
-const previewColumns = computed(() => {
-  const selectedProjects = props.projects.slice(0, props.homePreviewCount)
-  const columns = Array.from({ length: columnCount.value }, () => [])
-
-  selectedProjects.forEach((project, index) => {
-    columns[index % columnCount.value].push(project)
-  })
-
-  return columns
-})
-
-onMounted(() => {
-  syncColumnCount()
-  window.addEventListener('resize', syncColumnCount, { passive: true })
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', syncColumnCount)
-})
+const selectedProjects = computed(() => props.projects.slice(0, props.homePreviewCount))
+const { columns: previewColumns } = useResponsiveColumns(selectedProjects)
 </script>
 
 <template>

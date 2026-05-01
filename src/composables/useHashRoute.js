@@ -30,6 +30,14 @@ function readHash(currentRoute = { name: 'home', slug: null, extra: [] }) {
         return { name: 'note', slug, extra }
     }
 
+    if (section === 'recipes' && !slug) {
+        return { name: 'recipes', slug: null, extra: [] }
+    }
+
+    if (section === 'recipes' && slug) {
+        return { name: 'recipe', slug, extra }
+    }
+
     if (section === 'resume') {
         return { name: 'resume', slug: null, extra: [] }
     }
@@ -69,6 +77,11 @@ export function useHashRoute() {
             return
         }
 
+        if (Array.isArray(extra) && extra.length > 0) {
+            window.location.hash = `/${target}/${extra.join('/')}`
+            return
+        }
+
         if (target === 'projects') {
             window.location.hash = '/projects'
             return
@@ -79,8 +92,8 @@ export function useHashRoute() {
             return
         }
 
-        if (Array.isArray(extra) && extra.length > 0) {
-            window.location.hash = `/${target}/${extra.join('/')}`
+        if (target === 'recipes') {
+            window.location.hash = '/recipes'
             return
         }
 

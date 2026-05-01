@@ -23,6 +23,7 @@ const messages = {
         titles: {
             home: 'Home',
             projects: 'Projects',
+            recipes: 'Recipes',
             notes: 'Notes',
             resume: 'Resume',
         },
@@ -31,6 +32,7 @@ const messages = {
             resume: 'Resume',
             projects: 'Projects',
             notes: 'Notes',
+            recipes: 'Recipes',
             github: 'GitHub',
             language: 'Language',
         },
@@ -42,6 +44,7 @@ const messages = {
             all: 'All',
             search: 'Search',
             searchProjects: 'Search by title, summary, or tag',
+            searchRecipes: 'Search by title, ingredient, or note',
             copy: 'Copy',
             copied: 'Copied',
             copyFailed: 'Failed',
@@ -64,6 +67,13 @@ const messages = {
             browseEyebrow: 'Browse',
             filterTitle: 'Filter and search',
             groupsAria: 'Project groups',
+        },
+        recipes: {
+            eyebrow: 'Recipes',
+            title: 'Recipes',
+            intro: 'A small index of repeatable kitchen notes and casual dishes.',
+            browseEyebrow: 'Browse',
+            searchTitle: 'Search recipes',
         },
         notes: {
             eyebrow: 'Notes',
@@ -92,6 +102,11 @@ const messages = {
             title: 'Details',
             browseEyebrow: 'Browse',
             otherProjects: 'Other projects',
+        },
+        recipeDetail: {
+            eyebrow: 'Recipe',
+            browseEyebrow: 'Browse',
+            otherRecipes: 'Other recipes',
         },
         resume: {
             eyebrow: 'Resume',
@@ -123,6 +138,7 @@ const messages = {
         titles: {
             home: '首页',
             projects: '项目',
+            recipes: '食谱',
             notes: '笔记',
             resume: '简历',
         },
@@ -131,6 +147,7 @@ const messages = {
             resume: '简历',
             projects: '项目',
             notes: '笔记',
+            recipes: '食谱',
             github: 'GitHub',
             language: '语言',
         },
@@ -142,6 +159,7 @@ const messages = {
             all: '全部',
             search: '搜索',
             searchProjects: '按标题、摘要或标签搜索',
+            searchRecipes: '按标题、食材或备注搜索',
             copy: '复制',
             copied: '已复制',
             copyFailed: '复制失败',
@@ -164,6 +182,13 @@ const messages = {
             browseEyebrow: 'Browse',
             filterTitle: '筛选与搜索',
             groupsAria: '项目分类',
+        },
+        recipes: {
+            eyebrow: 'Recipes',
+            title: '食谱',
+            intro: '整理一些可以复现的厨房笔记和家常做法。',
+            browseEyebrow: 'Browse',
+            searchTitle: '搜索食谱',
         },
         notes: {
             eyebrow: 'Notes',
@@ -192,6 +217,11 @@ const messages = {
             title: '项目详情',
             browseEyebrow: 'Browse',
             otherProjects: '其他项目',
+        },
+        recipeDetail: {
+            eyebrow: 'Recipe',
+            browseEyebrow: 'Browse',
+            otherRecipes: '其他食谱',
         },
         resume: {
             eyebrow: 'Resume',
