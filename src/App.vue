@@ -77,7 +77,8 @@ const localizedTools = computed(() =>
     tools.map((tool) => ({
         ...tool,
         title: resolveLocalizedValue(tool.title),
-        summary: resolveLocalizedValue(tool.summary),
+        subtitle: resolveLocalizedValue(tool.subtitle),
+        intro: resolveLocalizedValue(tool.intro),
         tags: resolveLocalizedValue(tool.tags) ?? tool.tags,
         displayGroups: tool.groups.map((group) => groupLabel(group)),
     })),

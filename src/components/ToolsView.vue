@@ -31,7 +31,8 @@ const filteredTools = computed(() => {
         const matchesQuery =
             !query
             || tool.title.toLowerCase().includes(query)
-            || tool.summary.toLowerCase().includes(query)
+            || tool.subtitle.toLowerCase().includes(query)
+            || tool.intro.toLowerCase().includes(query)
             || searchableGroups.some((group) => group.toLowerCase().includes(query))
             || tool.tags.some((tag) => tag.toLowerCase().includes(query))
 
@@ -106,10 +107,10 @@ const filteredTools = computed(() => {
                                 <div class="project-card__head">
                                     <p class="project-card__meta">{{ (tool.displayGroups ?? tool.groups).join(' / ') }}</p>
                                     <h3>{{ tool.title }}</h3>
-                                    <p class="project-card__subtitle">{{ tool.summary }}</p>
+                                    <p class="project-card__subtitle">{{ tool.subtitle }}</p>
                                 </div>
                                 <div class="project-card__summary-wrap">
-                                    <p class="project-card__summary">{{ tool.tags.join(' / ') }}</p>
+                                    <p class="project-card__summary">{{ tool.intro }}</p>
                                     <span class="project-card__more">
                                         {{ t('common.open') }}
                                     </span>

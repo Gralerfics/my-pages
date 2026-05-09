@@ -38,8 +38,9 @@ const toolEntries = Object.entries(metaModules).map(([path, meta]) => {
         slug,
         ...meta,
         groups: normalizeGroups(meta),
-        tags: Array.isArray(meta.tags) ? meta.tags : [],
-        summary: meta.summary ?? meta.intro ?? meta.subtitle ?? '',
+        tags: meta.tags ?? [],
+        subtitle: meta.subtitle ?? meta.summary ?? '',
+        intro: meta.intro ?? meta.summary ?? meta.subtitle ?? '',
         cover: explicitCover
             ?? coverModules[`./${slug}/cover.png`]
             ?? coverModules[`./${slug}/cover.jpg`]

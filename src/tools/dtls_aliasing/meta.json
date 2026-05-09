@@ -3,9 +3,13 @@
         "en": "Sampled-Data System Aliasing Demo",
         "zh": "离散采样系统混叠演示"
     },
-    "summary": {
-        "en": "An interactive visualization of stability in a zero-order-hold sampled-data system.",
-        "zh": "一个观察零阶保持采样数据系统稳定性的交互式演示。"
+    "subtitle": {
+        "en": "Interactive stability visualization for a zero-order-hold sampled-data system",
+        "zh": "零阶保持采样数据系统的稳定性交互演示"
+    },
+    "intro": {
+        "en": "Explore how the sampling interval changes the closed-loop spectral radius, sampled sequence, and intersample waveform behavior.",
+        "zh": "观察采样间隔如何改变闭环谱半径、采样序列以及采样间连续波形表现。"
     },
     "groups": ["Signal Processing", "Control"],
     "tags": {
