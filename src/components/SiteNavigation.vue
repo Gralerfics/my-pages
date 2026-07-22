@@ -45,7 +45,7 @@ const items = computed(() => [
     { key: 'home', label: t('nav.home') },
     { key: 'resume', label: t('nav.resume') },
     { key: 'notes', label: t('nav.notes') },
-    { key: 'recipes', label: t('nav.recipes') },
+    // { key: 'recipes', label: t('nav.recipes') },
     { key: 'tools', label: t('nav.tools') },
 ])
 
